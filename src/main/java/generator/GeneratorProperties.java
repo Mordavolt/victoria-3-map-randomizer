@@ -1,3 +1,5 @@
+package generator;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -25,8 +27,10 @@ record GeneratorProperties(
     var vanillaGamePath = properties.getProperty("game_installation_path");
     var vanillaProvincesPath =
         vanillaGamePath + "/" + properties.getProperty("vanilla_province_terrains_file_path");
-    var vanillaSubsistenceBuildingsFilePath = vanillaGamePath + "/" + properties.getProperty("vanilla_subsistence_buildings_file_path");
-    var vanillaBuildingGroupsFilePath = vanillaGamePath + "/" + properties.getProperty("vanilla_building_groups_file_path");
+    var vanillaSubsistenceBuildingsFilePath =
+        vanillaGamePath + "/" + properties.getProperty("vanilla_subsistence_buildings_file_path");
+    var vanillaBuildingGroupsFilePath =
+        vanillaGamePath + "/" + properties.getProperty("vanilla_building_groups_file_path");
     return new GeneratorProperties(
         vanillaGamePath,
         vanillaProvincesPath,

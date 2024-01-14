@@ -7,7 +7,7 @@ import java.util.Map;
 import org.antlr.v4.runtime.CharStreams;
 import org.junit.jupiter.api.Test;
 
-class PdxFileReaderTest {
+final class PdxFileReaderTest {
 
   @Test
   void parseLines() throws Exception {

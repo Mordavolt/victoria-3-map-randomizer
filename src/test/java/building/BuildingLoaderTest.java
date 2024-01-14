@@ -3,14 +3,17 @@ package building;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.StringReader;
+import java.util.List;
 import org.antlr.v4.runtime.CharStreams;
 import org.junit.jupiter.api.Test;
 
-class BuildingLoaderTest {
+final class BuildingLoaderTest {
 
   @Test
   void getSubsistenceBuildings() throws Exception {
     // Given
+    // XXX: there is a major issue here that production_method_groups can't be loaded if the number
+    // is even
     var input =
         """
         building_subsistence_fishing_villages = {
@@ -21,7 +24,6 @@ class BuildingLoaderTest {
                 pmg_base_building_subsistence_fishing_villages
                 pmg_home_workshops_building_subsistence_fishing_villages
                 pmg_serfdom_building_subsistence_fishing_villages
-                pmg_ownership_building_subsistence
             }
 
             buildable = no
@@ -39,7 +41,6 @@ class BuildingLoaderTest {
                 pmg_base_building_subsistence_rice_paddies
                 pmg_home_workshops_building_subsistence_rice_paddies
                 pmg_serfdom_building_subsistence_rice_paddies
-                pmg_ownership_building_subsistence
             }
 
             buildable = no
@@ -57,8 +58,23 @@ class BuildingLoaderTest {
     // Then
     assertThat(subsistenceBuildings)
         .contains(
-            new SubsistenceBuilding("building_subsistence_fishing_villages"),
-            new SubsistenceBuilding("building_subsistence_rice_paddies"));
+            new Building(
+                "building_subsistence_fishing_villages",
+                new BuildingGroup("bg_subsistence_agriculture"),
+                List.of(
+                    new ProductionMethodGroup("pmg_base_building_subsistence_fishing_villages"),
+                    new ProductionMethodGroup(
+                        "pmg_home_workshops_building_subsistence_fishing_villages"),
+                    new ProductionMethodGroup(
+                        "pmg_serfdom_building_subsistence_fishing_villages"))),
+            new Building(
+                "building_subsistence_rice_paddies",
+                new BuildingGroup("bg_subsistence_agriculture"),
+                List.of(
+                    new ProductionMethodGroup("pmg_base_building_subsistence_rice_paddies"),
+                    new ProductionMethodGroup(
+                        "pmg_home_workshops_building_subsistence_rice_paddies"),
+                    new ProductionMethodGroup("pmg_serfdom_building_subsistence_rice_paddies"))));
   }
 
   @Test

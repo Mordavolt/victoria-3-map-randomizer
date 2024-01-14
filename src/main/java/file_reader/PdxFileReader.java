@@ -1,10 +1,10 @@
 package file_reader;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import file_reader.ParadoxFileParser.ValueContext;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -44,9 +44,7 @@ public class PdxFileReader {
                   assignment -> assignment.field().getText(),
                   assignment -> getValue(assignment.value())));
     } else if (value.array() != null) {
-      return value.array().value().stream()
-          .map(PdxFileReader::getValue)
-          .collect(Collectors.toList());
+      return value.array().value().stream().map(PdxFileReader::getValue).collect(toList());
     } else if (value.list() != null) {
       throw new UnsupportedOperationException("A list config not supported");
     } else if (value.constructor() != null) {

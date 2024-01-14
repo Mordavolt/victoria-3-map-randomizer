@@ -5,11 +5,12 @@ import static java.util.stream.Collectors.toList;
 import file_reader.PdxFileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 
 public class BuildingLoader {
-  public static List<SubsistenceBuilding> loadSubsistenceBuildings(String filePath) {
+  public static List<Building> loadSubsistenceBuildings(String filePath) {
     try {
       return getSubsistenceBuildings(CharStreams.fromFileName(filePath));
     } catch (IOException e) {
@@ -17,9 +18,22 @@ public class BuildingLoader {
     }
   }
 
-  static List<SubsistenceBuilding> getSubsistenceBuildings(CharStream charStream) {
-    return PdxFileReader.parseFileToDataMap(charStream).keySet().stream()
-        .map(SubsistenceBuilding::new)
+  static List<Building> getSubsistenceBuildings(CharStream charStream) {
+    return PdxFileReader.parseFileToDataMap(charStream).entrySet().stream()
+        .map(
+            entry -> {
+              var id = entry.getKey();
+              var buildingProperties = (Map<String, Object>) entry.getValue();
+              var buildingGroup = (String) buildingProperties.get("building_group");
+              var productionMethodGroups =
+                  (List<String>) buildingProperties.get("production_method_groups");
+              return new Building(
+                  id,
+                  new BuildingGroup(buildingGroup),
+                  productionMethodGroups.stream()
+                      .map(ProductionMethodGroup::new)
+                      .collect(toList()));
+            })
         .collect(toList());
   }
 
@@ -33,7 +47,7 @@ public class BuildingLoader {
 
   static List<BuildingGroup> getBuildingGroups(CharStream charStream) {
     return PdxFileReader.parseFileToDataMap(charStream).keySet().stream()
-            .map(BuildingGroup::new)
-            .collect(toList());
+        .map(BuildingGroup::new)
+        .collect(toList());
   }
 }
