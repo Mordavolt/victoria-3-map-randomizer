@@ -11,8 +11,6 @@ final class PdxFileReaderTest {
 
   @Test
   void parseLines() throws Exception {
-    // TODO the nested array only works with odd number of elements, even numbers are parsed as
-    // item1=item2. FML.
     // Given
     var nestedConfig =
         """
@@ -23,7 +21,6 @@ final class PdxFileReaderTest {
                   nested_array = {
                       item1
                       item2
-                      item3
                   }
 
                   nested_prop = {
@@ -53,7 +50,7 @@ final class PdxFileReaderTest {
                     "prop2",
                     "\"ccc\"",
                     "nested_array",
-                    List.of("item1", "item2", "item3"),
+                    List.of("item1", "item2"),
                     "nested_prop",
                     Map.of("item1", "value1"),
                     "prop3",

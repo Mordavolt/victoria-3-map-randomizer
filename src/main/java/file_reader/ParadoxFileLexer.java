@@ -1,4 +1,4 @@
-package file_reader;
+package file_reader; // Generated from ParadoxFile.g4 by ANTLR 4.13.1
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.CharStream;
@@ -163,7 +163,7 @@ class ParadoxFileLexer extends Lexer {
 
   @Override
   public String getGrammarFileName() {
-    return "src/main/antlr4/ParadoxFile.g4";
+    return "ParadoxFile.g4";
   }
 
   @Override

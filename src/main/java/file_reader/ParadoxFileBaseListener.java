@@ -1,4 +1,4 @@
-package file_reader;
+package file_reader; // Generated from ParadoxFile.g4 by ANTLR 4.13.1
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -41,6 +41,22 @@ class ParadoxFileBaseListener implements ParadoxFileListener {
    */
   @Override
   public void exitAssignment(ParadoxFileParser.AssignmentContext ctx) {}
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterLazy_assignment(ParadoxFileParser.Lazy_assignmentContext ctx) {}
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitLazy_assignment(ParadoxFileParser.Lazy_assignmentContext ctx) {}
 
   /**
    * {@inheritDoc}

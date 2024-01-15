@@ -1,4 +1,4 @@
-package file_reader;
+package file_reader; // Generated from ParadoxFile.g4 by ANTLR 4.13.1
 
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -34,6 +34,20 @@ interface ParadoxFileListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   void exitAssignment(ParadoxFileParser.AssignmentContext ctx);
+
+  /**
+   * Enter a parse tree produced by {@link ParadoxFileParser#lazy_assignment}.
+   *
+   * @param ctx the parse tree
+   */
+  void enterLazy_assignment(ParadoxFileParser.Lazy_assignmentContext ctx);
+
+  /**
+   * Exit a parse tree produced by {@link ParadoxFileParser#lazy_assignment}.
+   *
+   * @param ctx the parse tree
+   */
+  void exitLazy_assignment(ParadoxFileParser.Lazy_assignmentContext ctx);
 
   /**
    * Enter a parse tree produced by {@link ParadoxFileParser#field}.

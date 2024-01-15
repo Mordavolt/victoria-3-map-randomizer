@@ -1,8 +1,9 @@
 grammar ParadoxFile;
 
-config: (assignment)*;
+config: (lazy_assignment)*;
 
-assignment: field OPERATOR? value;
+assignment: field OPERATOR value;
+lazy_assignment: assignment | field value;
 field: string | symbol | variable | LIST_START;
 
 value: integer | percent | real | date | string | symbol | variable | variable_expression | map | array | list | constructor;

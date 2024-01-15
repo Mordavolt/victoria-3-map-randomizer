@@ -12,8 +12,6 @@ final class BuildingLoaderTest {
   @Test
   void getSubsistenceBuildings() throws Exception {
     // Given
-    // XXX: there is a major issue here that production_method_groups can't be loaded if the number
-    // is even
     var input =
         """
         building_subsistence_fishing_villages = {
@@ -24,6 +22,7 @@ final class BuildingLoaderTest {
                 pmg_base_building_subsistence_fishing_villages
                 pmg_home_workshops_building_subsistence_fishing_villages
                 pmg_serfdom_building_subsistence_fishing_villages
+                pmg_ownership_building_subsistence
             }
 
             buildable = no
@@ -41,6 +40,7 @@ final class BuildingLoaderTest {
                 pmg_base_building_subsistence_rice_paddies
                 pmg_home_workshops_building_subsistence_rice_paddies
                 pmg_serfdom_building_subsistence_rice_paddies
+                pmg_ownership_building_subsistence
             }
 
             buildable = no
@@ -65,8 +65,8 @@ final class BuildingLoaderTest {
                     new ProductionMethodGroup("pmg_base_building_subsistence_fishing_villages"),
                     new ProductionMethodGroup(
                         "pmg_home_workshops_building_subsistence_fishing_villages"),
-                    new ProductionMethodGroup(
-                        "pmg_serfdom_building_subsistence_fishing_villages"))),
+                    new ProductionMethodGroup("pmg_serfdom_building_subsistence_fishing_villages"),
+                    new ProductionMethodGroup("pmg_ownership_building_subsistence"))),
             new Building(
                 "building_subsistence_rice_paddies",
                 new BuildingGroup("bg_subsistence_agriculture"),
@@ -74,7 +74,8 @@ final class BuildingLoaderTest {
                     new ProductionMethodGroup("pmg_base_building_subsistence_rice_paddies"),
                     new ProductionMethodGroup(
                         "pmg_home_workshops_building_subsistence_rice_paddies"),
-                    new ProductionMethodGroup("pmg_serfdom_building_subsistence_rice_paddies"))));
+                    new ProductionMethodGroup("pmg_serfdom_building_subsistence_rice_paddies"),
+                    new ProductionMethodGroup("pmg_ownership_building_subsistence"))));
   }
 
   @Test

@@ -13,11 +13,11 @@ public class PdxFileReader {
     ParadoxFileLexer lexer = new ParadoxFileLexer(charStream);
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     ParadoxFileParser parser = new ParadoxFileParser(tokens);
-    return parser.config().assignment().stream()
+    return parser.config().lazy_assignment().stream()
         .collect(
             toMap(
-                assignment -> assignment.field().getText(),
-                assignment -> getValue(assignment.value())));
+                lazyAssignment -> lazyAssignment.assignment().field().getText(),
+                lazyAssignment -> getValue(lazyAssignment.assignment().value())));
   }
 
   private static Object getValue(ValueContext value) {
