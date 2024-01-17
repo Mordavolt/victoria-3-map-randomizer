@@ -30,17 +30,14 @@ final class StateWriterTest {
         new RegionState(
             state,
             new Country("JOH"),
-            List.of(new Province("x76546D", null), new Province("x0080B0", null)),
+            List.of(new Province("x76546D"), new Province("x0080B0")),
             List.of(),
             List.of());
     var regionState2 =
         new RegionState(
             state,
             new Country("SIA"),
-            List.of(
-                new Province("xF9F87A", null),
-                new Province("x80C0B0", null),
-                new Province("xCAB9F2", null)),
+            List.of(new Province("xF9F87A"), new Province("x80C0B0"), new Province("xCAB9F2")),
             List.of(),
             List.of());
 
@@ -60,7 +57,7 @@ final class StateWriterTest {
 			country = c:SIA
 			owned_provinces = { xF9F87A x80C0B0 xCAB9F2 }
 		}
-		add_homeland = malay
+		add_homeland = cu:malay
 	}
 """);
   }

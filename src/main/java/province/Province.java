@@ -1,3 +1,3 @@
 package province;
 
-public record Province(String id, Terrain terrain) {}
+public record Province(String id) {}

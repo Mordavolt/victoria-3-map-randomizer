@@ -20,15 +20,6 @@ public class ProvinceLoader {
 
   static List<Province> getProvinces(CharStream charStream) throws IOException {
     var dataMap = PdxFileReader.parseFileToDataMap(charStream);
-    return dataMap.entrySet().stream()
-        .map(
-            entry -> {
-              var id = entry.getKey();
-              var terrainString = (String) entry.getValue();
-              var terrain =
-                  terrainString.toUpperCase(Locale.ROOT).substring(1, terrainString.length() - 1);
-              return new Province(id, Terrain.valueOf(terrain));
-            })
-        .collect(toList());
+    return dataMap.keySet().stream().map(Province::new).toList();
   }
 }

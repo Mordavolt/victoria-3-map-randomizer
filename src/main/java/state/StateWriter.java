@@ -1,9 +1,13 @@
 package state;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.groupingBy;
 
 import culture.Culture;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +16,14 @@ import province.Province;
 class StateWriter {
 
   public static void writeHistoryStates(List<RegionState> regionStates, String filePath) {
-    try {
-
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8))) {
+      writer.write("STATES = {");
+      for (String string : serialiseHistoryStates(regionStates)) {
+        writer.write(string);
+      }
+      writer.write("}");
     } catch (Exception e) {
-      throw new RuntimeException("Could not read provinces from " + filePath, e);
+      throw new RuntimeException("Could not write history states to " + filePath, e);
     }
   }
 
@@ -36,7 +44,7 @@ class StateWriter {
         result.add("\t\t}");
       }
       for (Culture homelandCulture : entry.getKey().homelandCultures()) {
-        result.add(String.format("\t\tadd_homeland = %s", homelandCulture.id()));
+        result.add(String.format("\t\tadd_homeland = cu:%s", homelandCulture.id()));
       }
       result.add("\t}");
     }

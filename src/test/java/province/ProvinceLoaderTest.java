@@ -1,8 +1,6 @@
 package province;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static province.Terrain.DESERT;
-import static province.Terrain.PLAINS;
 
 import java.io.StringReader;
 import org.antlr.v4.runtime.CharStreams;
@@ -27,8 +25,8 @@ final class ProvinceLoaderTest {
     // Then
     assertThat(provinces)
         .contains(
-            new Province("x48E2A5", DESERT),
-            new Province("x5011E0", PLAINS),
-            new Province("xC09060", PLAINS));
+            new Province("x48E2A5"),
+            new Province("x5011E0"),
+            new Province("xC09060"));
   }
 }

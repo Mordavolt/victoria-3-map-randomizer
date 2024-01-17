@@ -29,11 +29,9 @@ public class BuildingLoader {
               return new Building(
                   id,
                   new BuildingGroup(buildingGroup),
-                  productionMethodGroups.stream()
-                      .map(ProductionMethodGroup::new)
-                      .collect(toList()));
+                  productionMethodGroups.stream().map(ProductionMethodGroup::new).toList());
             })
-        .collect(toList());
+        .toList();
   }
 
   public static List<BuildingGroup> loadBuildingGroups(String filePath) {
@@ -47,6 +45,6 @@ public class BuildingLoader {
   static List<BuildingGroup> getBuildingGroups(CharStream charStream) {
     return PdxFileReader.parseFileToDataMap(charStream).keySet().stream()
         .map(BuildingGroup::new)
-        .collect(toList());
+        .toList();
   }
 }
