@@ -8,7 +8,6 @@ import org.antlr.v4.runtime.CharStreams;
 import org.junit.jupiter.api.Test;
 
 final class BuildingLoaderTest {
-
   @Test
   void getSubsistenceBuildings() throws Exception {
     // Given

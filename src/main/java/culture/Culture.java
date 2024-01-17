@@ -1,3 +1,3 @@
 package culture;
 
-public record Culture() {}
+public record Culture(String id) {}

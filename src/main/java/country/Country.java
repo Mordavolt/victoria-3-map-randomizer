@@ -1,3 +1,3 @@
 package country;
 
-public record Country() {}
+public record Country(String id) {}

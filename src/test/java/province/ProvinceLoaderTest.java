@@ -6,11 +6,9 @@ import static province.Terrain.PLAINS;
 
 import java.io.StringReader;
 import org.antlr.v4.runtime.CharStreams;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 final class ProvinceLoaderTest {
-  @DisplayName("Should be able to load provinces with terrain")
   @Test
   void loadProvinces() throws Exception {
     // Given
