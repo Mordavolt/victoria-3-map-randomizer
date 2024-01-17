@@ -44,7 +44,7 @@ public class PdxFileReader {
                   assignment -> assignment.field().getText(),
                   assignment -> getValue(assignment.value()),
                   (a, b) -> {
-                    //We have duplicates in config files :(
+                    // We have duplicates in config files :(
                     return a;
                   }));
     } else if (value.array() != null) {
