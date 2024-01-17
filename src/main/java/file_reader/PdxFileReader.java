@@ -42,7 +42,11 @@ public class PdxFileReader {
           .collect(
               toMap(
                   assignment -> assignment.field().getText(),
-                  assignment -> getValue(assignment.value())));
+                  assignment -> getValue(assignment.value()),
+                  (a, b) -> {
+                    //We have duplicates in config files :(
+                    return a;
+                  }));
     } else if (value.array() != null) {
       return value.array().value().stream().map(PdxFileReader::getValue).collect(toList());
     } else if (value.list() != null) {

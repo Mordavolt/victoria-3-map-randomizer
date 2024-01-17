@@ -53,7 +53,7 @@ final class BuildingLoaderTest {
 
     // When
     var charStream = CharStreams.fromReader(new StringReader(input));
-    var subsistenceBuildings = BuildingLoader.getSubsistenceBuildings(charStream);
+    var subsistenceBuildings = BuildingLoader.getBuildings(charStream);
 
     // Then
     assertThat(subsistenceBuildings)

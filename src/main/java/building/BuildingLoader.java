@@ -10,15 +10,15 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 
 public class BuildingLoader {
-  public static List<Building> loadSubsistenceBuildings(String filePath) {
+  public static List<Building> loadBuildings(String filePath) {
     try {
-      return getSubsistenceBuildings(CharStreams.fromFileName(filePath));
-    } catch (IOException e) {
-      throw new RuntimeException("Could not read subsistence buildings from " + filePath, e);
+      return getBuildings(CharStreams.fromFileName(filePath));
+    } catch (Exception e) {
+      throw new RuntimeException("Could not read buildings from " + filePath, e);
     }
   }
 
-  static List<Building> getSubsistenceBuildings(CharStream charStream) {
+  static List<Building> getBuildings(CharStream charStream) {
     return PdxFileReader.parseFileToDataMap(charStream).entrySet().stream()
         .map(
             entry -> {
@@ -40,7 +40,7 @@ public class BuildingLoader {
   public static List<BuildingGroup> loadBuildingGroups(String filePath) {
     try {
       return getBuildingGroups(CharStreams.fromFileName(filePath));
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new RuntimeException("Could not read building groups from " + filePath, e);
     }
   }

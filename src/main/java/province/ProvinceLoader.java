@@ -13,7 +13,7 @@ public class ProvinceLoader {
   public static List<Province> loadProvinces(String filePath) {
     try {
       return getProvinces(CharStreams.fromFileName(filePath));
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new RuntimeException("Could not read provinces from " + filePath, e);
     }
   }
