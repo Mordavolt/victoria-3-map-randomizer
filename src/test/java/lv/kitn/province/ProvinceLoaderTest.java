@@ -1,5 +1,7 @@
 package lv.kitn.province;
 
+import static lv.kitn.province.Terrain.DESERT;
+import static lv.kitn.province.Terrain.PLAINS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.StringReader;
@@ -21,6 +23,9 @@ final class ProvinceLoaderTest {
     var provinces = ProvinceLoader.getProvinces(charStream);
 
     assertThat(provinces)
-        .contains(new Province("x48E2A5"), new Province("x5011E0"), new Province("xC09060"));
+        .contains(
+            new Province("x48E2A5", DESERT),
+            new Province("x5011E0", PLAINS),
+            new Province("xC09060", PLAINS));
   }
 }

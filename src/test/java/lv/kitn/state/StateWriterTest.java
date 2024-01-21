@@ -29,7 +29,7 @@ final class StateWriterTest {
         new RegionState(
             state,
             new Country("JOH"),
-            ImmutableList.of(new Province("x76546D"), new Province("x0080B0")),
+            ImmutableList.of(new Province("x76546D", null), new Province("x0080B0", null)),
             ImmutableList.of(),
             ImmutableList.of());
     var regionState2 =
@@ -37,7 +37,9 @@ final class StateWriterTest {
             state,
             new Country("SIA"),
             ImmutableList.of(
-                new Province("xF9F87A"), new Province("x80C0B0"), new Province("xCAB9F2")),
+                new Province("xF9F87A", null),
+                new Province("x80C0B0", null),
+                new Province("xCAB9F2", null)),
             ImmutableList.of(),
             ImmutableList.of());
 

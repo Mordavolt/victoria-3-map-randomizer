@@ -1,8 +1,6 @@
 package lv.kitn.generator;
 
-import java.util.List;
 import lv.kitn.mapadjacency.MapAdjacencyExtractor;
-import lv.kitn.province.Province;
 import lv.kitn.province.ProvinceLoader;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -34,8 +32,6 @@ class RunGenerator implements CommandLineRunner {
     var adjacencyMatrix =
         mapAdjacencyExtractor.findAdjacencyMatrix(
             properties.gameInstallationPath() + properties.provinceImage());
-
-
 
     //    List<BuildingGroup> buildingGroups =
     //        BuildingLoader.loadBuildingGroups(
