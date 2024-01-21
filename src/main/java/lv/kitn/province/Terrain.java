@@ -1,6 +1,6 @@
 package lv.kitn.province;
 
-enum Terrain {
+public enum Terrain {
   DESERT,
   FOREST,
   HILLS,
