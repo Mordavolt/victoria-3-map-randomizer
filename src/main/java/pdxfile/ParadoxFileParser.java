@@ -1,4 +1,4 @@
-package file_reader; // Generated from ParadoxFile.g4 by ANTLR 4.13.1
+package pdxfile; // Generated from ParadoxFile.g4 by ANTLR 4.13.1
 
 import java.util.List;
 import org.antlr.v4.runtime.*;

@@ -1,12 +1,12 @@
 package building;
 
-import static java.util.stream.Collectors.toList;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
-import file_reader.PdxFileReader;
 import java.util.List;
 import java.util.Map;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
+import pdxfile.PdxFileReader;
 
 public class BuildingLoader {
   public static List<Building> loadBuildings(String filePath) {
@@ -29,7 +29,9 @@ public class BuildingLoader {
               return new Building(
                   id,
                   new BuildingGroup(buildingGroup),
-                  productionMethodGroups.stream().map(ProductionMethodGroup::new).toList());
+                  productionMethodGroups.stream()
+                      .map(ProductionMethodGroup::new)
+                      .collect(toImmutableList()));
             })
         .toList();
   }

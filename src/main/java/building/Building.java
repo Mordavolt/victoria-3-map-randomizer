@@ -1,6 +1,8 @@
 package building;
 
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 public record Building(
-    String id, BuildingGroup buildingGroup, List<ProductionMethodGroup> productionMethodGroups) {}
+    String id,
+    BuildingGroup buildingGroup,
+    ImmutableList<ProductionMethodGroup> productionMethodGroups) {}

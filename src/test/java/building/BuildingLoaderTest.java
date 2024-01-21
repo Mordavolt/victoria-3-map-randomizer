@@ -2,15 +2,14 @@ package building;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import java.io.StringReader;
-import java.util.List;
 import org.antlr.v4.runtime.CharStreams;
 import org.junit.jupiter.api.Test;
 
 final class BuildingLoaderTest {
   @Test
   void getSubsistenceBuildings() throws Exception {
-    // Given
     var input =
         """
         building_subsistence_fishing_villages = {
@@ -50,17 +49,15 @@ final class BuildingLoaderTest {
         }
         """;
 
-    // When
     var charStream = CharStreams.fromReader(new StringReader(input));
     var subsistenceBuildings = BuildingLoader.getBuildings(charStream);
 
-    // Then
     assertThat(subsistenceBuildings)
         .contains(
             new Building(
                 "building_subsistence_fishing_villages",
                 new BuildingGroup("bg_subsistence_agriculture"),
-                List.of(
+                ImmutableList.of(
                     new ProductionMethodGroup("pmg_base_building_subsistence_fishing_villages"),
                     new ProductionMethodGroup(
                         "pmg_home_workshops_building_subsistence_fishing_villages"),
@@ -69,7 +66,7 @@ final class BuildingLoaderTest {
             new Building(
                 "building_subsistence_rice_paddies",
                 new BuildingGroup("bg_subsistence_agriculture"),
-                List.of(
+                ImmutableList.of(
                     new ProductionMethodGroup("pmg_base_building_subsistence_rice_paddies"),
                     new ProductionMethodGroup(
                         "pmg_home_workshops_building_subsistence_rice_paddies"),
@@ -78,7 +75,7 @@ final class BuildingLoaderTest {
   }
 
   @Test
-  void getBuildingGroups() throws Exception { // Given
+  void getBuildingGroups() throws Exception {
     var input =
         """
             bg_rice_farms = {
@@ -106,11 +103,9 @@ final class BuildingLoaderTest {
             }
             """;
 
-    // When
     var charStream = CharStreams.fromReader(new StringReader(input));
     var subsistenceBuildings = BuildingLoader.getBuildingGroups(charStream);
 
-    // Then
     assertThat(subsistenceBuildings)
         .contains(
             new BuildingGroup("bg_rice_farms"),

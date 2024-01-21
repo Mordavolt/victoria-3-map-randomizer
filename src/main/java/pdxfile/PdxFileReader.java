@@ -1,12 +1,12 @@
-package file_reader;
+package pdxfile;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
-import file_reader.ParadoxFileParser.ValueContext;
 import java.util.Map;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import pdxfile.ParadoxFileParser.ValueContext;
 
 public class PdxFileReader {
   public static Map<String, Object> parseFileToDataMap(CharStream charStream) {
@@ -15,7 +15,7 @@ public class PdxFileReader {
     ParadoxFileParser parser = new ParadoxFileParser(tokens);
     return parser.config().lazy_assignment().stream()
         .collect(
-            toMap(
+            toImmutableMap(
                 lazyAssignment -> lazyAssignment.assignment().field().getText(),
                 lazyAssignment -> getValue(lazyAssignment.assignment().value())));
   }
@@ -40,7 +40,7 @@ public class PdxFileReader {
     } else if (value.map() != null) {
       return value.map().assignment().stream()
           .collect(
-              toMap(
+              toImmutableMap(
                   assignment -> assignment.field().getText(),
                   assignment -> getValue(assignment.value()),
                   (a, b) -> {
@@ -48,7 +48,7 @@ public class PdxFileReader {
                     return a;
                   }));
     } else if (value.array() != null) {
-      return value.array().value().stream().map(PdxFileReader::getValue).collect(toList());
+      return value.array().value().stream().map(PdxFileReader::getValue).collect(toImmutableList());
     } else if (value.list() != null) {
       throw new UnsupportedOperationException("A list config not supported");
     } else if (value.constructor() != null) {

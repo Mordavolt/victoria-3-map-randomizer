@@ -1,13 +1,10 @@
 package province;
 
-import static java.util.stream.Collectors.toList;
-
-import file_reader.PdxFileReader;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
+import pdxfile.PdxFileReader;
 
 public class ProvinceLoader {
   public static List<Province> loadProvinces(String filePath) {
