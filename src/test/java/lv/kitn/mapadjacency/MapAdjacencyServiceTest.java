@@ -12,14 +12,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-final class MapAdjacencyExtractorTest {
+final class MapAdjacencyServiceTest {
 
   @Test
   void findAdjacencyMatrix() throws Exception {
     ClassLoader classLoader = getClass().getClassLoader();
     BufferedImage image =
         ImageIO.read(classLoader.getResourceAsStream("lv/kitn/mapadjacency/test_provinces.png"));
-    var adjacencyMatrix = MapAdjacencyExtractor.findAdjacencyMatrix(image);
+    var adjacencyMatrix = MapAdjacencyService.findAdjacencyMatrix(image);
     var black = "x000000";
     var blue = "x00A2E8";
     var orange = "xFF7F27";
@@ -74,7 +74,7 @@ final class MapAdjacencyExtractorTest {
   @MethodSource("provideARGBValues")
   @ParameterizedTest
   void toHex(int input, String expected) throws Exception {
-    String hex = MapAdjacencyExtractor.toHex(input);
+    String hex = MapAdjacencyService.toHex(input);
     assertThat(hex).isEqualTo(expected);
   }
 

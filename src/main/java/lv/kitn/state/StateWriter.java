@@ -3,30 +3,38 @@ package lv.kitn.state;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.groupingBy;
 
+import com.google.common.collect.ImmutableSet;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lv.kitn.culture.Culture;
-import lv.kitn.province.Province;
 
-class StateWriter {
+public class StateWriter {
 
-  public static void writeHistoryStates(List<RegionState> regionStates, String filePath) {
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8))) {
+  public static void writeHistoryStates(ImmutableSet<RegionState> regionStates, String filePath) {
+    try {
+      new File(filePath).getParentFile().mkdirs();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
       writer.write("STATES = {");
+      writer.newLine();
       for (String string : serialiseHistoryStates(regionStates)) {
         writer.write(string);
+        writer.newLine();
       }
       writer.write("}");
+      writer.newLine();
+      writer.close();
     } catch (Exception e) {
       throw new RuntimeException("Could not write history states to " + filePath, e);
     }
   }
 
-  static List<String> serialiseHistoryStates(List<RegionState> regionStates) throws IOException {
+  static List<String> serialiseHistoryStates(ImmutableSet<RegionState> regionStates)
+      throws IOException {
     var result = new ArrayList<String>();
     var stateToRegions = regionStates.stream().collect(groupingBy(RegionState::state));
     for (Map.Entry<State, List<RegionState>> entry : stateToRegions.entrySet()) {
@@ -35,8 +43,8 @@ class StateWriter {
         result.add("\t\tcreate_state = {");
         result.add(String.format("\t\t\tcountry = c:%s", regionState.country().id()));
         StringBuilder ownedProvinces = new StringBuilder("\t\t\towned_provinces = { ");
-        for (Province province : regionState.ownedProvinces()) {
-          ownedProvinces.append(province.id()).append(" ");
+        for (String province : regionState.ownedProvinces()) {
+          ownedProvinces.append(province).append(" ");
         }
         ownedProvinces.append("}");
         result.add(ownedProvinces.toString());

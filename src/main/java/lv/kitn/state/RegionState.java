@@ -1,14 +1,14 @@
 package lv.kitn.state;
 
-import java.util.List;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import lv.kitn.building.StateBuilding;
 import lv.kitn.country.Country;
-import lv.kitn.population.Population;
-import lv.kitn.province.Province;
+import lv.kitn.culture.Culture;
 
 public record RegionState(
     State state,
     Country country,
-    List<Province> ownedProvinces,
-    List<Population> populations,
-    List<StateBuilding> buildings) {}
+    ImmutableSet<String> ownedProvinces,
+    ImmutableMap<Culture, Integer> populations,
+    ImmutableSet<StateBuilding> buildings) {}

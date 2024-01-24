@@ -2,16 +2,19 @@ package lv.kitn.mapadjacency;
 
 import static com.google.common.collect.ImmutableSetMultimap.toImmutableSetMultimap;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Sets;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 import javax.imageio.ImageIO;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MapAdjacencyExtractor {
+public class MapAdjacencyService {
 
   public ImmutableSetMultimap<String, String> findAdjacencyMatrix(String filePath) {
     try {
@@ -65,5 +68,38 @@ public class MapAdjacencyExtractor {
 
   static String toHex(int pixel) {
     return String.format("x%06X", (pixel & 0xFFFFFF));
+  }
+
+  public static ImmutableSet<ImmutableSet<String>> getGroups(
+      ImmutableSet<String> allowedProvinces,
+      ImmutableSetMultimap<String, String> adjacencyMatrix,
+      Integer minGroupSize) {
+    var groupedProvinces = ImmutableSet.<ImmutableSet<String>>builder();
+    var visited = new HashSet<String>();
+
+    for (var province : allowedProvinces) {
+      if (visited.contains(province)) {
+        continue;
+      }
+      var group = new ArrayList<String>();
+      visited.add(province);
+      group.add(province);
+      var currentProvince = province;
+      var i = 0;
+      while (group.size() < minGroupSize) {
+        for (var adjacent : adjacencyMatrix.get(currentProvince)) {
+          if (!visited.contains(adjacent) && allowedProvinces.contains(adjacent)) {
+            visited.add(adjacent);
+            group.add(adjacent);
+          }
+        }
+        if (i + 1 > group.size()) {
+          break;
+        }
+        currentProvince = group.get(i++);
+      }
+      groupedProvinces.add(ImmutableSet.copyOf(group));
+    }
+    return groupedProvinces.build();
   }
 }
