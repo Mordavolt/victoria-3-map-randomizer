@@ -11,11 +11,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import lv.kitn.culture.Culture;
 
+@Slf4j
 public class StateWriter {
 
   public static void writeHistoryStates(ImmutableSet<RegionState> regionStates, String filePath) {
+    log.debug("Writing history states to {}", filePath);
     try {
       new File(filePath).getParentFile().mkdirs();
       BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));

@@ -11,6 +11,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 public class PdxFileReader {
   public static Map<String, Object> parseFileToDataMap(CharStream charStream) {
     ParadoxFileLexer lexer = new ParadoxFileLexer(charStream);
+    lexer.removeErrorListeners();
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     ParadoxFileParser parser = new ParadoxFileParser(tokens);
     return parser.config().lazy_assignment().stream()

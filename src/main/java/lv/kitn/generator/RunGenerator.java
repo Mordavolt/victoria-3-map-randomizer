@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import lv.kitn.building.Building;
 import lv.kitn.building.BuildingGroup;
 import lv.kitn.building.BuildingLoader;
@@ -29,6 +30,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 class RunGenerator implements CommandLineRunner {
 
   private final FileProperties properties;
@@ -56,6 +58,17 @@ class RunGenerator implements CommandLineRunner {
     var adjacencyMatrix =
         mapAdjacencyService.findAdjacencyMatrix(
             input.gameInstallationPath() + input.provinceImage());
+
+    var additionalAdjacency =
+        mapAdjacencyService.loadAdditionalAdjacencyMatrix(
+            input.gameInstallationPath() + input.adjacencies());
+
+    var fullAdjacency =
+        ImmutableSetMultimap.<String, String>builder()
+            .putAll(adjacencyMatrix)
+            .putAll(additionalAdjacency)
+            .build();
+
     //
     //    var buildingGroups =
     //        BuildingLoader.loadBuildingGroups(input.gameInstallationPath() +
@@ -67,7 +80,7 @@ class RunGenerator implements CommandLineRunner {
             .flatMap(Collection::stream)
             .toList();
 
-    var groupedProvinces = groupAdjacentProvinces(provinces, adjacencyMatrix, 100);
+    var groupedProvinces = groupAdjacentProvinces(provinces, fullAdjacency, 100);
 
     Country country = new Country("AAA");
 
@@ -78,7 +91,7 @@ class RunGenerator implements CommandLineRunner {
 
     StateWriter.writeHistoryStates(regionStates, output.modPath() + output.states());
 
-    System.out.println("lol");
+    log.debug("Generation done");
   }
 
   private ImmutableSet<RegionState> generateRegionStates(

@@ -9,6 +9,7 @@ record FileProperties(Input input, Output output) {
       String gameInstallationPath,
       String provinceImage,
       String provinceTerrains,
+      String adjacencies,
       List<String> buildings,
       String buildingGroups) {}
 
