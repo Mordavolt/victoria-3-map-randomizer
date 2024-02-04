@@ -4,10 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import lv.kitn.building.Building;
-import lv.kitn.building.BuildingGroup;
-import lv.kitn.culture.Culture;
-import lv.kitn.province.Province;
 
 public record State(
     String variableName,

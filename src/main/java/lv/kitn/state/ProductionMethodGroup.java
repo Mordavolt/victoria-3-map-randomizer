@@ -1,3 +1,3 @@
-package lv.kitn.building;
+package lv.kitn.state;
 
 record ProductionMethodGroup(String id) {}

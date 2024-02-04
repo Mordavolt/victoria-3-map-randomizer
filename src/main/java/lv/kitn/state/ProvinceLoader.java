@@ -1,4 +1,4 @@
-package lv.kitn.province;
+package lv.kitn.state;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 

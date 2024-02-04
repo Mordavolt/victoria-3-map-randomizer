@@ -1,3 +1,3 @@
-package lv.kitn.province;
+package lv.kitn.state;
 
 public record Province(String id, Terrain terrain) {}

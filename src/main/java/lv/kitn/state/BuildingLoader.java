@@ -1,4 +1,4 @@
-package lv.kitn.building;
+package lv.kitn.state;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 

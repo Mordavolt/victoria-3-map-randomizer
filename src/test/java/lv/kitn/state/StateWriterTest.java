@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import lv.kitn.country.Country;
-import lv.kitn.culture.Culture;
 import org.junit.jupiter.api.Test;
 
 final class StateWriterTest {

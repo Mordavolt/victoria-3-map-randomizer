@@ -1,4 +1,4 @@
-package lv.kitn.province;
+package lv.kitn.state;
 
 public enum Terrain {
   DESERT,

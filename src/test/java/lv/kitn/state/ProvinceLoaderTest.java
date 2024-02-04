@@ -1,7 +1,7 @@
-package lv.kitn.province;
+package lv.kitn.state;
 
-import static lv.kitn.province.Terrain.DESERT;
-import static lv.kitn.province.Terrain.PLAINS;
+import static lv.kitn.state.Terrain.DESERT;
+import static lv.kitn.state.Terrain.PLAINS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.StringReader;
