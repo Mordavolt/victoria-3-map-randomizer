@@ -28,16 +28,18 @@ import org.springframework.stereotype.Service;
 public class MapAdjacencyService {
   public ImmutableSetMultimap<String, String> findAdjacencyMatrix(String filePath) {
     try {
+      log.debug("Calculating adjacency matrix for {}", filePath);
       File file = new File(filePath);
       BufferedImage image = ImageIO.read(file);
-      return findAdjacencyMatrix(image);
+      var adjacencyMatrix = findAdjacencyMatrix(image);
+      log.debug("Returning calculated matrix");
+      return adjacencyMatrix;
     } catch (Exception e) {
       throw new RuntimeException("Could not calculate the adjacency matrix for " + filePath, e);
     }
   }
 
   static ImmutableSetMultimap<String, String> findAdjacencyMatrix(BufferedImage image) {
-    log.debug("Calculating adjacency matrix for {}", image);
     int width = image.getWidth();
     int height = image.getHeight();
     var adjacencyMatrixBuilder = ImmutableSetMultimap.<Integer, Integer>builder();
@@ -72,7 +74,6 @@ public class MapAdjacencyService {
       }
     }
 
-    log.debug("Returning calculated matrix");
     return adjacencyMatrixBuilder.build().entries().stream()
         .collect(toImmutableSetMultimap(a -> toHex(a.getKey()), a -> toHex(a.getValue())));
   }

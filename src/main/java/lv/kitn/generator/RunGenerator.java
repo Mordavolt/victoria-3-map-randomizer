@@ -23,6 +23,7 @@ import lv.kitn.culture.Culture;
 import lv.kitn.mapadjacency.MapAdjacencyService;
 import lv.kitn.province.Province;
 import lv.kitn.province.ProvinceLoader;
+import lv.kitn.state.Population;
 import lv.kitn.state.RegionState;
 import lv.kitn.state.State;
 import lv.kitn.state.StateWriter;
@@ -90,6 +91,7 @@ class RunGenerator implements CommandLineRunner {
     var output = properties.output();
 
     StateWriter.writeHistoryStates(regionStates, output.modPath() + output.states());
+    StateWriter.writeHistoryPops(regionStates, output.modPath() + output.pops());
 
     log.debug("Generation done");
   }
@@ -103,7 +105,8 @@ class RunGenerator implements CommandLineRunner {
               state,
               country,
               state.provinces(),
-              ImmutableMap.of(new Culture("malay"), 100_000),
+              ImmutableSet.of(
+                  new Population(new Culture("malay"), 100_00, Optional.empty(), Optional.empty())),
               ImmutableSet.of()));
     }
     return result.build();

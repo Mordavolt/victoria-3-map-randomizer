@@ -60,4 +60,50 @@ public class StateWriter {
     }
     return result;
   }
+
+  public static void writeHistoryPops(ImmutableSet<RegionState> regionStates, String filePath) {
+    log.debug("Writing history pops to {}", filePath);
+    try {
+      new File(filePath).getParentFile().mkdirs();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+      writer.write("POPS = {");
+      writer.newLine();
+      for (String string : serialiseHistoryPops(regionStates)) {
+        writer.write(string);
+        writer.newLine();
+      }
+      writer.write("}");
+      writer.newLine();
+      writer.close();
+    } catch (Exception e) {
+      throw new RuntimeException("Could not write history pops to " + filePath, e);
+    }
+  }
+
+  static List<String> serialiseHistoryPops(ImmutableSet<RegionState> regionStates)
+      throws IOException {
+    var result = new ArrayList<String>();
+    var stateToRegions = regionStates.stream().collect(groupingBy(RegionState::state));
+    for (Map.Entry<State, List<RegionState>> entry : stateToRegions.entrySet()) {
+      result.add(String.format("\ts:%s = {", entry.getKey().variableName()));
+      for (RegionState regionState : entry.getValue()) {
+        result.add(String.format("\t\tregion_state:%s = {", regionState.country().id()));
+        for (Population population : regionState.populations()) {
+          result.add("\t\t\tcreate_pop = {");
+          population
+              .popType()
+              .ifPresent(type -> result.add(String.format("\t\t\t\tpop_type = %s", type)));
+          result.add(String.format("\t\t\t\tculture = %s", population.culture().id()));
+          population
+              .religion()
+              .ifPresent(religion -> result.add(String.format("\t\t\t\treligion = %s", religion)));
+          result.add(String.format("\t\t\t\tsize = %d", population.size()));
+          result.add("\t\t\t}");
+        }
+        result.add("\t\t}");
+      }
+      result.add("\t}");
+    }
+    return result;
+  }
 }
