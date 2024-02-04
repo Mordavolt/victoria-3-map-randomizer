@@ -105,4 +105,55 @@ public class StateWriter {
     }
     return result;
   }
+
+  public static void writeHistoryBuildings(
+      ImmutableSet<RegionState> regionStates, String filePath) {
+    log.debug("Writing history buildings to {}", filePath);
+    try {
+      new File(filePath).getParentFile().mkdirs();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+      writer.write("BUILDINGS = {");
+      writer.newLine();
+      for (String string : serialiseHistoryBuildings(regionStates)) {
+        writer.write(string);
+        writer.newLine();
+      }
+      writer.write("}");
+      writer.newLine();
+      writer.close();
+    } catch (Exception e) {
+      throw new RuntimeException("Could not write history buildings to " + filePath, e);
+    }
+  }
+
+  static List<String> serialiseHistoryBuildings(ImmutableSet<RegionState> regionStates)
+      throws IOException {
+    var result = new ArrayList<String>();
+    var stateToRegions = regionStates.stream().collect(groupingBy(RegionState::state));
+    for (Map.Entry<State, List<RegionState>> entry : stateToRegions.entrySet()) {
+      result.add(String.format("\ts:%s = {", entry.getKey().variableName()));
+      for (RegionState regionState : entry.getValue()) {
+        result.add(String.format("\t\tregion_state:%s = {", regionState.country().id()));
+        for (StateBuilding stateBuilding : regionState.buildings()) {
+          result.add("\t\t\tcreate_building = {");
+          result.add(String.format("\t\t\t\tbuilding = \"%s\"", stateBuilding.building().id()));
+          result.add(String.format("\t\t\t\tlevel = %d", stateBuilding.level()));
+          result.add(String.format("\t\t\t\treserves = %d", stateBuilding.reserves()));
+
+          StringBuilder productionMethods =
+              new StringBuilder("\t\t\t\tactivate_production_methods = { ");
+          for (ProductionMethodGroup productionMethodGroup :
+              stateBuilding.activateProductionMethods()) {
+            productionMethods.append("\"").append(productionMethodGroup.id()).append("\" ");
+          }
+          productionMethods.append("}");
+          result.add(productionMethods.toString());
+          result.add("\t\t\t}");
+        }
+        result.add("\t\t}");
+      }
+      result.add("\t}");
+    }
+    return result;
+  }
 }

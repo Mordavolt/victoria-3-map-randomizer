@@ -62,17 +62,7 @@ final class StateWriterTest {
   void serialiseHistoryPops() throws Exception {
     var state =
         new State(
-            "STATE_MALAYA",
-            null,
-            ImmutableList.of(new Culture("malay")),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            Optional.empty());
+            "STATE_MALAYA", null, null, null, null, null, null, null, null, null, Optional.empty());
     var regionState1 =
         new RegionState(
             state,
@@ -121,6 +111,81 @@ final class StateWriterTest {
 				culture = javan
 				religion = animist
 				size = 5400
+			}
+		}
+	}
+""");
+  }
+
+  @Test
+  void serialiseHistoryBuildings() throws Exception {
+    var state =
+        new State(
+            "STATE_MALAYA", null, null, null, null, null, null, null, null, null, Optional.empty());
+    var regionState1 =
+        new RegionState(
+            state,
+            new Country("JOH"),
+            ImmutableSet.of(),
+            ImmutableSet.of(),
+            ImmutableSet.of(
+                new StateBuilding(
+                    new Building("building_fishing_wharf", null, null),
+                    1,
+                    1,
+                    ImmutableList.of(
+                        new ProductionMethodGroup("pm_simple_fishing"),
+                        new ProductionMethodGroup("pm_unrefrigerated"),
+                        new ProductionMethodGroup("pm_merchant_guilds_building_fishing_wharf")))));
+    var regionState2 =
+        new RegionState(
+            state,
+            new Country("SEL"),
+            ImmutableSet.of(),
+            ImmutableSet.of(),
+            ImmutableSet.of(
+                new StateBuilding(
+                    new Building("building_barracks", null, null),
+                    5,
+                    1,
+                    ImmutableList.of(new ProductionMethodGroup("pm_no_organization"))),
+                new StateBuilding(
+                    new Building("building_rice_farm", null, null),
+                    1,
+                    100,
+                    ImmutableList.of(
+                        new ProductionMethodGroup("pm_simple_farming_building_rice_farm"),
+                        new ProductionMethodGroup("pm_no_secondary"),
+                        new ProductionMethodGroup("pm_tools_disabled"),
+                        new ProductionMethodGroup("pm_privately_owned")))));
+
+    var strings =
+        StateWriter.serialiseHistoryBuildings(ImmutableSet.of(regionState1, regionState2));
+
+    assertThat(String.join("\n", strings) + "\n")
+        .isEqualTo(
+            """
+	s:STATE_MALAYA = {
+		region_state:JOH = {
+			create_building = {
+				building = "building_fishing_wharf"
+				level = 1
+				reserves = 1
+				activate_production_methods = { "pm_simple_fishing" "pm_unrefrigerated" "pm_merchant_guilds_building_fishing_wharf" }
+			}
+		}
+		region_state:SEL = {
+			create_building = {
+				building = "building_barracks"
+				level = 5
+				reserves = 1
+				activate_production_methods = { "pm_no_organization" }
+			}
+			create_building = {
+				building = "building_rice_farm"
+				level = 1
+				reserves = 100
+				activate_production_methods = { "pm_simple_farming_building_rice_farm" "pm_no_secondary" "pm_tools_disabled" "pm_privately_owned" }
 			}
 		}
 	}
