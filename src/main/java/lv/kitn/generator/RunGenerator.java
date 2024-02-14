@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Stream;
 import lv.kitn.mapadjacency.MapAdjacencyService;
 import lv.kitn.state.Building;
 import lv.kitn.state.BuildingGroup;
@@ -25,6 +24,7 @@ import lv.kitn.state.BuildingLoader;
 import lv.kitn.state.Color;
 import lv.kitn.state.Country;
 import lv.kitn.state.Culture;
+import lv.kitn.state.DiscoverableResource;
 import lv.kitn.state.Population;
 import lv.kitn.state.Province;
 import lv.kitn.state.ProvinceLoader;
@@ -124,7 +124,9 @@ class RunGenerator implements CommandLineRunner {
     StateWriter.writeHistoryStates(regionStates, output.modPath() + output.states());
     StateWriter.writeHistoryPops(regionStates, output.modPath() + output.pops());
     StateWriter.writeHistoryBuildings(regionStates, output.modPath() + output.buildings());
-    StateWriter.writeStrategicRegions(strategicRegions, output.modPath() + output.strategicRegions());
+    StateWriter.writeStrategicRegions(
+        strategicRegions, output.modPath() + output.strategicRegions());
+    StateWriter.writeStateRegions(states, output.modPath() + output.stateRegions());
 
     LOG.debug("Generation done");
   }
@@ -162,11 +164,16 @@ class RunGenerator implements CommandLineRunner {
                   .findAny()
                   .orElseThrow(),
               provinces,
+              ImmutableSet.of(),
+              ImmutableSet.of(),
+              ImmutableSet.of(),
               ImmutableMap.of(),
               20,
               ImmutableSet.of(new BuildingGroup("bg_rice_farms")),
               ImmutableMap.of(new BuildingGroup("bg_coal_mining "), 13),
-              ImmutableMap.of(new BuildingGroup("bg_rubber "), 23),
+              ImmutableSet.of(
+                  new DiscoverableResource(
+                      new BuildingGroup("bg_rubber "), Optional.empty(), 23, Optional.empty())),
               Optional.empty()));
       i++;
     }
@@ -191,7 +198,9 @@ class RunGenerator implements CommandLineRunner {
   }
 
   private static ImmutableSet<StrategicRegion> generateStrategicRegions(
-      ImmutableSet<State> states, ImmutableSetMultimap<String, String> stateAdjacency, Random random) {
+      ImmutableSet<State> states,
+      ImmutableSetMultimap<String, String> stateAdjacency,
+      Random random) {
     LOG.debug("Generating strategic regions");
     var stateMap = Maps.uniqueIndex(states, State::variableName);
     var stateGroups =
