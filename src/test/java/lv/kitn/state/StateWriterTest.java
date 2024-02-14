@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.Test;
 
 final class StateWriterTest {
@@ -190,5 +191,70 @@ final class StateWriterTest {
 		}
 	}
 """);
+  }
+
+  @Test
+  void serialiseStrategicRegions() throws Exception {
+    var state1 =
+        new State(
+            "STATE_CAMBODIA",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            Optional.empty());
+    var state2 =
+        new State(
+            "STATE_MEKONG", null, null, null, null, null, null, null, null, null, Optional.empty());
+    var state3 =
+        new State(
+            "STATE_NORTH_SUMATRA",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            Optional.empty());
+    var strategicRegion1 = new StrategicRegion(
+            "region_indochina",
+            "asian",
+            "x5C3070",
+            new Color(0.9, 0.1, 0.1),
+            ImmutableSet.of(state1, state2));
+    var strategicRegion2 = new StrategicRegion(
+            "region_indonesia",
+            "african",
+            "x6ED39E",
+            new Color(0.204, 0.651, 0.308),
+            ImmutableSet.of(state3));
+
+    var strings =
+        StateWriter.serialiseStrategicRegions(ImmutableSet.of(strategicRegion1, strategicRegion2));
+
+    assertThat(String.join("\n", strings) + "\n")
+        .isEqualTo(
+            """
+region_indochina = {
+	graphical_culture = "asian"
+	capital_province = x5C3070
+	map_color = { 0.900 0.100 0.100 }
+	states = { STATE_CAMBODIA STATE_MEKONG }
+}
+region_indonesia = {
+	graphical_culture = "african"
+	capital_province = x6ED39E
+	map_color = { 0.204 0.651 0.308 }
+	states = { STATE_NORTH_SUMATRA }
+}
+        """);
   }
 }

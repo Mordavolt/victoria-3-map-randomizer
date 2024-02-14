@@ -20,20 +20,20 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import javax.imageio.ImageIO;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 public class MapAdjacencyService {
+  private static final Logger LOG = LoggerFactory.getLogger(MapAdjacencyService.class);
+
   public ImmutableSetMultimap<String, String> findAdjacencyMatrix(String filePath) {
     try {
-      log.debug("Calculating adjacency matrix for {}", filePath);
+      LOG.debug("Calculating adjacency matrix for {}", filePath);
       File file = new File(filePath);
       BufferedImage image = ImageIO.read(file);
-      var adjacencyMatrix = findAdjacencyMatrix(image);
-      log.debug("Returning calculated matrix");
-      return adjacencyMatrix;
+      return findAdjacencyMatrix(image);
     } catch (Exception e) {
       throw new RuntimeException("Could not calculate the adjacency matrix for " + filePath, e);
     }
@@ -107,14 +107,12 @@ public class MapAdjacencyService {
   }
 
   public static ImmutableSet<ImmutableSet<String>> getGroups(
-      ImmutableSet<String> allowedProvinces,
-      ImmutableSetMultimap<String, String> adjacencyMatrix,
-      Integer minGroupSize) {
-    log.debug("Calculating groups with min size of {}", minGroupSize);
+      ImmutableSetMultimap<String, String> adjacencyMatrix, Integer targetGroupSize) {
+    LOG.debug("Calculating groups with min size of {}", targetGroupSize);
     var groups = new HashSet<Set<String>>();
     var visited = new HashSet<String>();
 
-    for (var province : allowedProvinces) {
+    for (var province : adjacencyMatrix.keySet()) {
       if (visited.contains(province)) {
         continue;
       }
@@ -123,9 +121,9 @@ public class MapAdjacencyService {
       group.add(province);
       var currentProvince = province;
       var i = 0;
-      while (group.size() < minGroupSize) {
+      while (group.size() < targetGroupSize) {
         for (var adjacent : adjacencyMatrix.get(currentProvince)) {
-          if (!visited.contains(adjacent) && allowedProvinces.contains(adjacent)) {
+          if (!visited.contains(adjacent)) {
             visited.add(adjacent);
             group.add(adjacent);
           }
@@ -138,7 +136,7 @@ public class MapAdjacencyService {
       groups.add(new HashSet<>(group));
     }
 
-    consolidateSmallGroups(groups, adjacencyMatrix, minGroupSize / 5);
+    consolidateSmallGroups(groups, adjacencyMatrix, targetGroupSize / 5);
 
     return groups.stream()
         .filter(not(Set::isEmpty))
@@ -150,7 +148,7 @@ public class MapAdjacencyService {
       Set<Set<String>> groups,
       ImmutableSetMultimap<String, String> adjacencyMatrix,
       int consolidationThreshold) {
-    log.debug("Consolidating groups smaller than {}", consolidationThreshold);
+    LOG.debug("Consolidating groups smaller than {}", consolidationThreshold);
     var smallGroups =
         groups.stream().filter(group -> group.size() < consolidationThreshold).iterator();
     while (smallGroups.hasNext()) {

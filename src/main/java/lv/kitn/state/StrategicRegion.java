@@ -1,6 +1,10 @@
 package lv.kitn.state;
 
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
 
-record StrategicRegion(
-    String graphicalCulture, Province capitalProvince, Color mapColor, List<State> states) {}
+public record StrategicRegion(
+    String name,
+    String graphicalCulture,
+    String capitalProvince,
+    Color mapColor,
+    ImmutableSet<State> states) {}

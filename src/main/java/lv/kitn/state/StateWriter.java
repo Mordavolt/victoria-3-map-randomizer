@@ -11,16 +11,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class StateWriter {
+  private static final Logger LOG = LoggerFactory.getLogger(StateWriter.class);
 
   public static void writeHistoryStates(ImmutableSet<RegionState> regionStates, String filePath) {
-    log.debug("Writing history states to {}", filePath);
+    LOG.debug("Writing history states to {}", filePath);
     try {
       new File(filePath).getParentFile().mkdirs();
       BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+      writer.write('\ufeff');
       writer.write("STATES = {");
       writer.newLine();
       for (String string : serialiseHistoryStates(regionStates)) {
@@ -61,10 +63,11 @@ public class StateWriter {
   }
 
   public static void writeHistoryPops(ImmutableSet<RegionState> regionStates, String filePath) {
-    log.debug("Writing history pops to {}", filePath);
+    LOG.debug("Writing history pops to {}", filePath);
     try {
       new File(filePath).getParentFile().mkdirs();
       BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+      writer.write('\ufeff');
       writer.write("POPS = {");
       writer.newLine();
       for (String string : serialiseHistoryPops(regionStates)) {
@@ -108,10 +111,11 @@ public class StateWriter {
 
   public static void writeHistoryBuildings(
       ImmutableSet<RegionState> regionStates, String filePath) {
-    log.debug("Writing history buildings to {}", filePath);
+    LOG.debug("Writing history buildings to {}", filePath);
     try {
       new File(filePath).getParentFile().mkdirs();
       BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+      writer.write('\ufeff');
       writer.write("BUILDINGS = {");
       writer.newLine();
       for (String string : serialiseHistoryBuildings(regionStates)) {
@@ -154,6 +158,50 @@ public class StateWriter {
       }
       result.add("\t}");
     }
+    return result;
+  }
+
+  public static void writeStrategicRegions(
+      ImmutableSet<StrategicRegion> strategicRegions, String filePath) {
+    LOG.debug("Writing strategic regions to {}", filePath);
+    try {
+      new File(filePath).getParentFile().mkdirs();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+      writer.write('\ufeff');
+      for (String string : serialiseStrategicRegions(strategicRegions)) {
+        writer.write(string);
+        writer.newLine();
+      }
+      writer.close();
+    } catch (Exception e) {
+      throw new RuntimeException("Could not write strategic regions to " + filePath, e);
+    }
+  }
+
+  static List<String> serialiseStrategicRegions(ImmutableSet<StrategicRegion> strategicRegions)
+      throws IOException {
+    var result = new ArrayList<String>();
+    for (StrategicRegion strategicRegion : strategicRegions) {
+      result.add(String.format("%s = {", strategicRegion.name()));
+
+      result.add(String.format("\tgraphical_culture = \"%s\"", strategicRegion.graphicalCulture()));
+      result.add(String.format("\tcapital_province = %s", strategicRegion.capitalProvince()));
+      result.add(
+          String.format(
+              "\tmap_color = { %.3f %.3f %.3f }",
+              strategicRegion.mapColor().red(),
+              strategicRegion.mapColor().green(),
+              strategicRegion.mapColor().blue()));
+
+      StringBuilder productionMethods = new StringBuilder("\tstates = { ");
+      for (State state : strategicRegion.states()) {
+        productionMethods.append(state.variableName()).append(" ");
+      }
+      productionMethods.append("}");
+      result.add(productionMethods.toString());
+      result.add("}");
+    }
+
     return result;
   }
 }
