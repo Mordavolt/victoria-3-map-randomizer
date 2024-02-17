@@ -107,7 +107,7 @@ class RunGenerator implements CommandLineRunner {
 
     var groupedProvinces = getGroups(fullAdjacency, 100);
 
-    Country country = new Country("AAA");
+    Country country = new Country("BEL");
 
     var states = generateStates(groupedProvinces, buildings);
 
@@ -173,7 +173,7 @@ class RunGenerator implements CommandLineRunner {
               ImmutableMap.of(new BuildingGroup("bg_coal_mining "), 13),
               ImmutableSet.of(
                   new DiscoverableResource(
-                      new BuildingGroup("bg_rubber "), Optional.empty(), 23, Optional.empty())),
+                      new BuildingGroup("bg_rubber"), Optional.empty(), 23, Optional.empty())),
               Optional.empty()));
       i++;
     }
