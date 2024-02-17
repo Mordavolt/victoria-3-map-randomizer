@@ -1,4 +1,4 @@
-package lv.kitn.generator;
+package lv.kitn.state;
 
 import java.util.Random;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

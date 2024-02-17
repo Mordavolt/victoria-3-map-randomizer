@@ -1,9 +1,10 @@
-package lv.kitn.generator;
+package lv.kitn.state;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.ImmutableSetMultimap.toImmutableSetMultimap;
 import static lv.kitn.mapadjacency.MapAdjacencyService.getGroups;
+import static lv.kitn.state.Politics.TRADITIONAL;
 import static lv.kitn.state.Terrain.LAKES;
 import static lv.kitn.state.Terrain.OCEAN;
 
@@ -18,20 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import lv.kitn.mapadjacency.MapAdjacencyService;
-import lv.kitn.state.Building;
-import lv.kitn.state.BuildingGroup;
-import lv.kitn.state.BuildingLoader;
-import lv.kitn.state.Color;
-import lv.kitn.state.Country;
-import lv.kitn.state.Culture;
-import lv.kitn.state.DiscoverableResource;
-import lv.kitn.state.Population;
-import lv.kitn.state.Province;
-import lv.kitn.state.ProvinceLoader;
-import lv.kitn.state.RegionState;
-import lv.kitn.state.State;
-import lv.kitn.state.StateWriter;
-import lv.kitn.state.StrategicRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -107,7 +94,23 @@ class RunGenerator implements CommandLineRunner {
 
     var groupedProvinces = getGroups(fullAdjacency, 100);
 
-    Country country = new Country("BEL");
+    Country country =
+        new Country(
+            "BER",
+            ImmutableSet.of(),
+            ImmutableSet.of(),
+            ImmutableSet.of(),
+            TRADITIONAL,
+            4,
+            Optional.empty(),
+            ImmutableMap.of(),
+            2,
+            ImmutableMap.of(),
+            ImmutableSet.of(),
+            ImmutableMap.of(),
+            ImmutableMap.of(),
+            ImmutableSet.of(),
+            ImmutableMap.of());
 
     var states = generateStates(groupedProvinces, buildings);
 
@@ -170,7 +173,7 @@ class RunGenerator implements CommandLineRunner {
               ImmutableMap.of(),
               20,
               ImmutableSet.of(new BuildingGroup("bg_rice_farms")),
-              ImmutableMap.of(new BuildingGroup("bg_coal_mining "), 13),
+              ImmutableMap.of(new BuildingGroup("bg_coal_mining"), 13),
               ImmutableSet.of(
                   new DiscoverableResource(
                       new BuildingGroup("bg_rubber"), Optional.empty(), 23, Optional.empty())),

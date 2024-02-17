@@ -1,4 +1,4 @@
-package lv.kitn.generator;
+package lv.kitn.state;
 
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -18,6 +18,7 @@ record FileProperties(Input input, Output output) {
       String states,
       String pops,
       String buildings,
+      String countries,
       String strategicRegions,
       String stateRegions) {}
 }

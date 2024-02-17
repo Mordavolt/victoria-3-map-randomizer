@@ -36,14 +36,44 @@ final class StateWriterTest {
     var regionState1 =
         new RegionState(
             state,
-            new Country("JOH"),
+            new Country(
+                "JOH",
+                null,
+                null,
+                null,
+                null,
+                null,
+                Optional.empty(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null),
             ImmutableSet.of("x76546D", "x0080B0"),
             ImmutableSet.of(),
             ImmutableSet.of());
     var regionState2 =
         new RegionState(
             state,
-            new Country("SIA"),
+            new Country(
+                "SIA",
+                null,
+                null,
+                null,
+                null,
+                null,
+                Optional.empty(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null),
             ImmutableSet.of("xF9F87A", "x80C0B0", "xCAB9F2"),
             ImmutableSet.of(),
             ImmutableSet.of());
@@ -88,7 +118,22 @@ final class StateWriterTest {
     var regionState1 =
         new RegionState(
             state,
-            new Country("JOH"),
+            new Country(
+                "JOH",
+                null,
+                null,
+                null,
+                null,
+                null,
+                Optional.empty(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null),
             ImmutableSet.of(),
             ImmutableSet.of(
                 new Population(new Culture("malay"), 399_600, Optional.empty(), Optional.empty()),
@@ -98,7 +143,22 @@ final class StateWriterTest {
     var regionState2 =
         new RegionState(
             state,
-            new Country("SEL"),
+            new Country(
+                "SEL",
+                null,
+                null,
+                null,
+                null,
+                null,
+                Optional.empty(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null),
             ImmutableSet.of(),
             ImmutableSet.of(
                 new Population(new Culture("malay"), 209_000, Optional.empty(), Optional.empty()),
@@ -160,7 +220,22 @@ final class StateWriterTest {
     var regionState1 =
         new RegionState(
             state,
-            new Country("JOH"),
+            new Country(
+                "JOH",
+                null,
+                null,
+                null,
+                null,
+                null,
+                Optional.empty(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null),
             ImmutableSet.of(),
             ImmutableSet.of(),
             ImmutableSet.of(
@@ -175,7 +250,22 @@ final class StateWriterTest {
     var regionState2 =
         new RegionState(
             state,
-            new Country("SEL"),
+            new Country(
+                "SEL",
+                null,
+                null,
+                null,
+                null,
+                null,
+                Optional.empty(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null),
             ImmutableSet.of(),
             ImmutableSet.of(),
             ImmutableSet.of(
