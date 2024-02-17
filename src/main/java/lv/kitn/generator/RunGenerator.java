@@ -93,9 +93,9 @@ class RunGenerator implements CommandLineRunner {
 
     var groupedProvinces = getGroups(fullAdjacency, 100);
 
-    Country country =
-        new Country(
-            "BER",
+    var countries =
+        ImmutableSet.of(new Country(
+            "AAA",
             ImmutableSet.of(),
             ImmutableSet.of(),
             ImmutableSet.of(),
@@ -109,13 +109,13 @@ class RunGenerator implements CommandLineRunner {
             ImmutableMap.of(),
             ImmutableMap.of(),
             ImmutableSet.of(),
-            ImmutableMap.of());
+            ImmutableMap.of()));
 
     var states = generateStates(groupedProvinces, buildings);
 
     var stateAdjacency = calculateStateAdjacency(states, fullAdjacency);
 
-    var regionStates = generateRegionStates(states, country);
+    var regionStates = generateRegionStates(states, countries);
     var strategicRegions = generateStrategicRegions(states, stateAdjacency, random);
 
     var seaStates = ImmutableSet.<State>of();
@@ -129,6 +129,7 @@ class RunGenerator implements CommandLineRunner {
     StateWriter.writeStrategicRegions(
         strategicRegions, output.modPath() + output.strategicRegions());
     StateWriter.writeStateRegions(states, output.modPath() + output.stateRegions());
+    CountryWriter.writeHistoryCountries(countries, output.modPath() + output.countries());
 
     LOG.debug("Generation done");
   }
@@ -183,14 +184,14 @@ class RunGenerator implements CommandLineRunner {
   }
 
   private static ImmutableSet<RegionState> generateRegionStates(
-      ImmutableSet<State> states, Country country) {
+          ImmutableSet<State> states, ImmutableSet<Country> countries) {
     LOG.debug("Generating region states");
     var result = ImmutableSet.<RegionState>builder();
     for (var state : states) {
       result.add(
           new RegionState(
               state,
-              country,
+              countries.iterator().next(),
               state.provinces(),
               ImmutableSet.of(
                   new Population(new Culture("malay"), 100_00, Optional.empty(), Optional.empty())),
