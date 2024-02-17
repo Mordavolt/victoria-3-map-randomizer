@@ -1,0 +1,137 @@
+package lv.kitn.generator;
+
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import com.google.common.collect.ImmutableSet;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class CountryWriter {
+  private static final Logger LOG = LoggerFactory.getLogger(CountryWriter.class);
+
+  public static void writeHistoryCountries(ImmutableSet<Country> countries, String filePath) {
+    LOG.debug("Writing history countries to {}", filePath);
+    try {
+      new File(filePath).getParentFile().mkdirs();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+      writer.write('\ufeff');
+      writer.write("COUNTRIES = {");
+      writer.newLine();
+      for (String string : serialiseHistoryCountries(countries)) {
+        writer.write(string);
+        writer.newLine();
+      }
+      writer.write("}");
+      writer.newLine();
+      writer.close();
+    } catch (Exception e) {
+      throw new RuntimeException("Could not write history countries to " + filePath, e);
+    }
+  }
+
+  static List<String> serialiseHistoryCountries(ImmutableSet<Country> countries)
+      throws IOException {
+    var result = new ArrayList<String>();
+    for (Country country : countries) {
+      result.add(format("  c:%s = {", country.id()));
+      for (var law : country.activatedLaws()) {
+        result.add(format("    activate_law = law_type:%s", law.id()));
+      }
+      for (var good : country.taxedGoods()) {
+        result.add(format("    add_taxed_goods = g:%s", good.id()));
+      }
+      for (var technology : country.researchedTechnologies()) {
+        result.add(format("    add_technology_researched = %s", technology.id()));
+      }
+      result.add(
+          format(
+              "    effect_starting_politics_%s = yes",
+              country.startingPolitics().name().toLowerCase(Locale.ROOT)));
+      result.add(
+          format("    effect_starting_technology_tier_%d_tech = yes", country.technologyTier()));
+      country
+          .nextElectionDate()
+          .ifPresent(
+              date -> result.add(format("    set_next_election_date = %s", formatDate(date))));
+      for (var entry : country.tariffs().entrySet()) {
+        result.add(
+            format(
+                "    set_tariffs_%s_priority = g:%s",
+                entry.getValue() ? "import" : "export", entry.getKey().id()));
+      }
+      result.add(format("    set_tax_level = %s", getTaxLevel(country.taxLevel())));
+      for (var entry : country.institutionInvestmentLevels().entrySet()) {
+        result.add("    set_institution_investment_level = {");
+        result.add(format("        institution = %s", entry.getKey().id()));
+        result.add(format("        level = %s", entry.getValue()));
+        result.add("    }");
+      }
+      for (var interestGroup : country.rulingInterestGroups()) {
+        result.add(format("    ig:%s = {", interestGroup.id()));
+        result.add("        add_ruling_interest_group = yes");
+        result.add("    }");
+      }
+      for (var entry : country.companies().entrySet()) {
+        result.add(format("    add_company = company_type:%s", entry.getKey().id()));
+        result.add(format("    company:%s = {", entry.getKey().id()));
+        result.add(
+            format("        set_company_establishment_date = %s", formatDate(entry.getValue())));
+        result.add("    }");
+      }
+      for (var entry : country.variables().entrySet()) {
+        result.add("    set_variable = {");
+        result.add(format("        name = %s", entry.getKey()));
+        result.add(format("        value = %s", entry.getValue()));
+        result.add("    }");
+      }
+      for (var journalEntry : country.journalEntries()) {
+        result.add("    add_journal_entry = {");
+        result.add(format("        type = %s", journalEntry));
+        result.add("    }");
+      }
+      for (var entry : country.modifiers().entrySet()) {
+        result.add("    add_modifier = {");
+        result.add(format("        name = %s", entry.getKey()));
+        result.add(format("        months = %s", entry.getValue()));
+        result.add("    }");
+      }
+
+      //      for (RegionState regionState : entry.getValue()) {
+      //        result.add("    create_state = {");
+      //        result.add(String.format("      country = c:%s", regionState.country().id()));
+      //        result.add(serialiseListOfStrings("owned_provinces", regionState.ownedProvinces(),
+      // 6));
+      //        result.add("    }");
+      //      }
+      //      for (Culture homelandCulture : entry.getKey().homelandCultures()) {
+      //        result.add(String.format("    add_homeland = cu:%s", homelandCulture.id()));
+      //      }
+      result.add("  }");
+    }
+    return result;
+  }
+
+  private static String getTaxLevel(Integer level) {
+    return switch (level) {
+      case 1 -> "low";
+      case 2 -> "medium";
+      case 3 -> "high";
+      default -> throw new RuntimeException("Tax level must be betwee 1 and 3");
+    };
+  }
+
+  private static String formatDate(LocalDate date) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.M.d");
+    return date.format(formatter);
+  }
+}
