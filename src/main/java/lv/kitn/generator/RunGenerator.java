@@ -94,22 +94,23 @@ class RunGenerator implements CommandLineRunner {
     var groupedProvinces = getGroups(fullAdjacency, 100);
 
     var countries =
-        ImmutableSet.of(new Country(
-            "AAA",
-            ImmutableSet.of(),
-            ImmutableSet.of(),
-            ImmutableSet.of(),
-            TRADITIONAL,
-            4,
-            Optional.empty(),
-            ImmutableMap.of(),
-            2,
-            ImmutableMap.of(),
-            ImmutableSet.of(),
-            ImmutableMap.of(),
-            ImmutableMap.of(),
-            ImmutableSet.of(),
-            ImmutableMap.of()));
+        ImmutableSet.of(
+            new Country(
+                "AAA",
+                ImmutableSet.of(),
+                ImmutableSet.of(),
+                ImmutableSet.of(),
+                TRADITIONAL,
+                4,
+                Optional.empty(),
+                ImmutableMap.of(),
+                2,
+                ImmutableMap.of(),
+                ImmutableSet.of(),
+                ImmutableMap.of(),
+                ImmutableMap.of(),
+                ImmutableSet.of(),
+                ImmutableMap.of()));
 
     var states = generateStates(groupedProvinces, buildings);
 
@@ -118,8 +119,8 @@ class RunGenerator implements CommandLineRunner {
     var regionStates = generateRegionStates(states, countries);
     var strategicRegions = generateStrategicRegions(states, stateAdjacency, random);
 
-    var seaStates = ImmutableSet.<State>of();
-    var seaStrategicRegions = ImmutableSet.<StrategicRegion>of();
+    //    var seaStates = ImmutableSet.<State>of();
+    //    var seaStrategicRegions = ImmutableSet.<StrategicRegion>of();
 
     var output = properties.output();
 
@@ -184,7 +185,7 @@ class RunGenerator implements CommandLineRunner {
   }
 
   private static ImmutableSet<RegionState> generateRegionStates(
-          ImmutableSet<State> states, ImmutableSet<Country> countries) {
+      ImmutableSet<State> states, ImmutableSet<Country> countries) {
     LOG.debug("Generating region states");
     var result = ImmutableSet.<RegionState>builder();
     for (var state : states) {
