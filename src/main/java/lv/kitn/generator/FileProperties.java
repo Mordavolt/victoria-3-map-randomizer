@@ -1,9 +1,7 @@
 package lv.kitn.generator;
 
 import java.util.List;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("files")
 record FileProperties(Input input, Output output) {
   record Input(
       String gameInstallationPath,

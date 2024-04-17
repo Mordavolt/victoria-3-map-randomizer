@@ -8,11 +8,9 @@ import java.util.Set;
 import lv.kitn.pdxfile.PdxFileReader;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ProvinceLoader {
-  public Set<Province> loadProvinces(String filePath) {
+  public static Set<Province> loadProvinces(String filePath) {
     try {
       return getProvinces(CharStreams.fromFileName(filePath));
     } catch (Exception e) {

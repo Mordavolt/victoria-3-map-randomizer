@@ -22,13 +22,11 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
-@Service
 public class MapAdjacencyService {
   private static final Logger LOG = LoggerFactory.getLogger(MapAdjacencyService.class);
 
-  public ImmutableSetMultimap<String, String> findAdjacencyMatrix(String filePath) {
+  public static ImmutableSetMultimap<String, String> findAdjacencyMatrix(String filePath) {
     try {
       LOG.debug("Calculating adjacency matrix for {}", filePath);
       File file = new File(filePath);
@@ -82,7 +80,8 @@ public class MapAdjacencyService {
     return String.format("x%06X", (pixel & 0xFFFFFF));
   }
 
-  public ImmutableSetMultimap<String, String> loadAdditionalAdjacencyMatrix(String filePath) {
+  public static ImmutableSetMultimap<String, String> loadAdditionalAdjacencyMatrix(
+      String filePath) {
     try (Reader reader = Files.newBufferedReader(Paths.get(filePath))) {
       var map = ImmutableSetMultimap.<String, String>builder();
       new CSVReaderBuilder(reader)

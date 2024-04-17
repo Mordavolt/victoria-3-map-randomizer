@@ -20,37 +20,16 @@ import java.util.Optional;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
-@Component
-class RunGenerator implements CommandLineRunner {
+class RunGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(RunGenerator.class);
 
-  private final FileProperties properties;
-
-  private final MapAdjacencyService mapAdjacencyService;
-
-  private final ProvinceLoader provinceLoader;
-
-  private final Random random;
-
-  RunGenerator(
-      FileProperties properties,
-      MapAdjacencyService mapAdjacencyService,
-      ProvinceLoader provinceLoader,
-      Random random) {
-    this.properties = properties;
-    this.mapAdjacencyService = mapAdjacencyService;
-    this.provinceLoader = provinceLoader;
-    this.random = random;
-  }
-
-  @Override
-  public void run(String... args) throws Exception {
+  public static void main(String... args) {
+    var random = new Random();
+    var properties = getProperties();
     var input = properties.input();
     var provinces =
-        provinceLoader.loadProvinces(input.gameInstallationPath() + input.provinceTerrains());
+        ProvinceLoader.loadProvinces(input.gameInstallationPath() + input.provinceTerrains());
 
     var landProvinces =
         provinces.stream()
@@ -59,7 +38,7 @@ class RunGenerator implements CommandLineRunner {
             .collect(toImmutableSet());
 
     var adjacencyMatrix =
-        mapAdjacencyService.findAdjacencyMatrix(
+        MapAdjacencyService.findAdjacencyMatrix(
             input.gameInstallationPath() + input.provinceImage());
 
     var landAdjacencyMatrix =
@@ -71,7 +50,7 @@ class RunGenerator implements CommandLineRunner {
             .collect(toImmutableSetMultimap(Map.Entry::getKey, Map.Entry::getValue));
 
     var additionalAdjacency =
-        mapAdjacencyService.loadAdditionalAdjacencyMatrix(
+        MapAdjacencyService.loadAdditionalAdjacencyMatrix(
             input.gameInstallationPath() + input.adjacencies());
 
     var fullAdjacency =
@@ -223,5 +202,39 @@ class RunGenerator implements CommandLineRunner {
               group));
     }
     return result.build();
+  }
+
+  private static FileProperties getProperties() {
+    var gamePath = "C:/Program Files (x86)/Steam/steamapps/common/Victoria 3/game";
+    var modPath = "C:/Users/Admin/Documents/Paradox Interactive/Victoria 3/mod/random_world";
+    return new FileProperties(
+        new FileProperties.Input(
+            gamePath,
+            "/map_data/provinces.png",
+            "/map_data/province_terrains.txt",
+            "/map_data/adjacencies.csv",
+            List.of(
+                "/common/buildings/01_industry.txt",
+                "/common/buildings/02_agro.txt",
+                "/common/buildings/03_mines.txt",
+                "/common/buildings/04_plantations.txt",
+                "/common/buildings/05_military.txt",
+                "/common/buildings/06_urban_center.txt",
+                "/common/buildings/07_government.txt",
+                "/common/buildings/08_monuments.txt",
+                "/common/buildings/09_misc_resource.txt",
+                "/common/buildings/10_canals.txt",
+                "/common/buildings/11_private_infrastructure.txt",
+                "/common/buildings/12_subsistence.txt",
+                "/common/buildings/13_construction.txt"),
+            "/common/building_groups/00_building_groups.txt"),
+        new FileProperties.Output(
+            modPath,
+            "/common/history/states/00_states.txt",
+            "/common/history/pops/00_pops.txt",
+            "/common/history/buildings/00_buildings.txt",
+            "/common/history/countries/00_countries.txt",
+            "/common/strategic_regions/00_strategic_regions.txt",
+            "/map_data/state_regions/00_state_regions.txt"));
   }
 }
