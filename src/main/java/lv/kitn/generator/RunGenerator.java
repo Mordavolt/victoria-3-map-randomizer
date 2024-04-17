@@ -3,6 +3,7 @@ package lv.kitn.generator;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.ImmutableSetMultimap.toImmutableSetMultimap;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static lv.kitn.generator.MapAdjacencyService.getGroups;
 import static lv.kitn.generator.Politics.TRADITIONAL;
 import static lv.kitn.generator.Terrain.LAKES;
@@ -13,6 +14,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Maps;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -103,6 +107,7 @@ class RunGenerator {
 
     var output = properties.output();
 
+    writeEmptyFilesForOverride(output.modPath(), output.emptyFilesToCreate());
     StateWriter.writeHistoryStates(regionStates, output.modPath() + output.states());
     StateWriter.writeHistoryPops(regionStates, output.modPath() + output.pops());
     StateWriter.writeHistoryBuildings(regionStates, output.modPath() + output.buildings());
@@ -204,6 +209,22 @@ class RunGenerator {
     return result.build();
   }
 
+  private static void writeEmptyFilesForOverride(String modPath, List<String> emptyFilesToCreate) {
+    for (String relativePath : emptyFilesToCreate) {
+      var filePath = modPath + relativePath;
+      LOG.debug("Writing an empty file to {}", filePath);
+      try {
+        new File(filePath).getParentFile().mkdirs();
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+        writer.write('\ufeff');
+        writer.newLine();
+        writer.close();
+      } catch (Exception e) {
+        throw new RuntimeException("Could not write an empty file to " + filePath, e);
+      }
+    }
+  }
+
   private static FileProperties getProperties() {
     var gamePath = "C:/Program Files (x86)/Steam/steamapps/common/Victoria 3/game";
     var modPath = "C:/Users/Admin/Documents/Paradox Interactive/Victoria 3/mod/random_world";
@@ -230,6 +251,22 @@ class RunGenerator {
             "/common/building_groups/00_building_groups.txt"),
         new FileProperties.Output(
             modPath,
+            List.of(
+                "/map_data/state_regions/00_west_europe.txt",
+                "/map_data/state_regions/01_south_europe.txt",
+                "/map_data/state_regions/02_east_europe.txt",
+                "/map_data/state_regions/03_north_africa.txt",
+                "/map_data/state_regions/04_subsaharan_africa.txt",
+                "/map_data/state_regions/05_north_america.txt",
+                "/map_data/state_regions/06_central_america.txt",
+                "/map_data/state_regions/07_south_america.txt",
+                "/map_data/state_regions/08_middle_east.txt",
+                "/map_data/state_regions/09_central_asia.txt",
+                "/map_data/state_regions/10_india.txt",
+                "/map_data/state_regions/11_east_asia.txt",
+                "/map_data/state_regions/12_indonesia.txt",
+                "/map_data/state_regions/13_australasia.txt",
+                "/map_data/state_regions/14_siberia.txt"),
             "/common/history/states/00_states.txt",
             "/common/history/pops/00_pops.txt",
             "/common/history/buildings/00_buildings.txt",

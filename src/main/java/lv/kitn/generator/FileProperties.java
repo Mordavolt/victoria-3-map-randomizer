@@ -13,6 +13,7 @@ record FileProperties(Input input, Output output) {
 
   record Output(
       String modPath,
+      List<String> emptyFilesToCreate,
       String states,
       String pops,
       String buildings,
