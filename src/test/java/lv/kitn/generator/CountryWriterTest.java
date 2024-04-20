@@ -1,5 +1,9 @@
 package lv.kitn.generator;
 
+import static lv.kitn.generator.CountryTier.EMPIRE;
+import static lv.kitn.generator.CountryTier.PRINCIPALITY;
+import static lv.kitn.generator.CountryType.DECENTRALIZED;
+import static lv.kitn.generator.CountryType.RECOGNIZED;
 import static lv.kitn.generator.Politics.CONSERVATIVE;
 import static lv.kitn.generator.Politics.TRADITIONAL;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +47,12 @@ final class CountryWriterTest {
                 LocalDate.of(1600, 12, 31)),
             ImmutableMap.of("east_indies_revolt_var", 0),
             ImmutableSet.of("je_consolidate_colonial_rule"),
-            ImmutableMap.of("brazilian_slave_trade_modifier", 600));
+            ImmutableMap.of("brazilian_slave_trade_modifier", 600),
+            null,
+            null,
+            null,
+            null,
+            null);
     var country2 =
         new Country(
             "BER",
@@ -60,7 +69,12 @@ final class CountryWriterTest {
             ImmutableMap.of(),
             ImmutableMap.of(),
             ImmutableSet.of(),
-            ImmutableMap.of());
+            ImmutableMap.of(),
+            null,
+            null,
+            null,
+            null,
+            null);
     var strings = CountryWriter.serialiseHistoryCountries(ImmutableSet.of(country1, country2));
 
     assertThat(String.join("\n", strings) + "\n")
@@ -122,5 +136,73 @@ final class CountryWriterTest {
     set_tax_level = high
   }
 """);
+  }
+
+  @Test
+  void serialiseCountryDefinitions() throws Exception {
+    var country1 =
+        new Country(
+            "GER",
+            null,
+            null,
+            null,
+            TRADITIONAL,
+            1,
+            Optional.empty(),
+            null,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            new Color(0.9, 0.101, 0.1),
+            RECOGNIZED,
+            EMPIRE,
+            ImmutableSet.of(new Culture("north_german"), new Culture("south_german")),
+            "STATE_BRANDENBURG");
+    var country2 =
+        new Country(
+            "GBR",
+            null,
+            null,
+            null,
+            TRADITIONAL,
+            1,
+            Optional.empty(),
+            null,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            new Color(0.99, 0.7, 0.9),
+            DECENTRALIZED,
+            PRINCIPALITY,
+            ImmutableSet.of(new Culture("british"), new Culture("scottish")),
+            "STATE_HOME_COUNTIES");
+    var strings = CountryWriter.serialiseCountryDefinitions(ImmutableSet.of(country1, country2));
+
+    assertThat(String.join("\n", strings) + "\n")
+        .isEqualTo(
+            """
+GER = {
+  color = { 0.900 0.101 0.100 }
+  country_type = recognized
+  tier = empire
+  cultures = { "north_german" "south_german" }
+  capital = STATE_BRANDENBURG
+}
+GBR = {
+  color = { 0.990 0.700 0.900 }
+  country_type = decentralized
+  tier = principality
+  cultures = { "british" "scottish" }
+  capital = STATE_HOME_COUNTIES
+}
+        """);
   }
 }

@@ -5,6 +5,8 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.ImmutableSetMultimap.toImmutableSetMultimap;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static lv.kitn.generator.CountryTier.KINGDOM;
+import static lv.kitn.generator.CountryType.RECOGNIZED;
 import static lv.kitn.generator.MapAdjacencyService.getGroups;
 import static lv.kitn.generator.Politics.TRADITIONAL;
 import static lv.kitn.generator.Terrain.LAKES;
@@ -95,7 +97,12 @@ class RunGenerator {
                 ImmutableMap.of(),
                 ImmutableMap.of(),
                 ImmutableSet.of(),
-                ImmutableMap.of()));
+                ImmutableMap.of(),
+                new Color(255.0, 1.0, 0.0),
+                RECOGNIZED,
+                KINGDOM,
+                ImmutableSet.of(new Culture("malay")),
+                "STATE_1"));
 
     var states = generateStates(groupedProvinces, buildings);
 
@@ -118,6 +125,8 @@ class RunGenerator {
         strategicRegions, output.modPath() + output.strategicRegions());
     StateWriter.writeStateRegions(states, output.modPath() + output.stateRegions());
     CountryWriter.writeHistoryCountries(countries, output.modPath() + output.countries());
+    CountryWriter.writeCountryDefinitions(
+        countries, output.modPath() + output.countryDefinitions());
 
     LOG.debug("Generation done");
   }
@@ -288,6 +297,7 @@ class RunGenerator {
             "/common/history/pops/00_pops.txt",
             "/common/history/buildings/00_buildings.txt",
             "/common/history/countries/00_countries.txt",
+            "/common/country_definitions/00_countries.txt",
             "/common/strategic_regions/00_strategic_regions.txt",
             "/map_data/state_regions/00_state_regions.txt"));
   }
@@ -298,7 +308,7 @@ class RunGenerator {
         "random_world",
         "0.0.1",
         "victoria3",
-        List.of("random"),
+        ImmutableSet.of("random"),
         "1.6.*",
         "Random World",
         new Metadata.GameCustomData(true));

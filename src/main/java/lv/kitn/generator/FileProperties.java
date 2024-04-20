@@ -19,6 +19,7 @@ record FileProperties(Input input, Output output) {
       String pops,
       String buildings,
       String countries,
+      String countryDefinitions,
       String strategicRegions,
       String stateRegions) {}
 }

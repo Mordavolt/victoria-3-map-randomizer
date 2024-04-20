@@ -1,5 +1,6 @@
 package lv.kitn.generator;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -7,7 +8,6 @@ import com.google.common.collect.ImmutableSet;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -39,8 +39,7 @@ public class CountryWriter {
     }
   }
 
-  static List<String> serialiseHistoryCountries(ImmutableSet<Country> countries)
-      throws IOException {
+  static List<String> serialiseHistoryCountries(ImmutableSet<Country> countries) {
     var result = new ArrayList<String>();
     for (Country country : countries) {
       result.add(format("  c:%s = {", country.id()));
@@ -105,18 +104,46 @@ public class CountryWriter {
         result.add(format("        months = %s", entry.getValue()));
         result.add("    }");
       }
-
-      //      for (RegionState regionState : entry.getValue()) {
-      //        result.add("    create_state = {");
-      //        result.add(String.format("      country = c:%s", regionState.country().id()));
-      //        result.add(serialiseListOfStrings("owned_provinces", regionState.ownedProvinces(),
-      // 6));
-      //        result.add("    }");
-      //      }
-      //      for (Culture homelandCulture : entry.getKey().homelandCultures()) {
-      //        result.add(String.format("    add_homeland = cu:%s", homelandCulture.id()));
-      //      }
       result.add("  }");
+    }
+    return result;
+  }
+
+  public static void writeCountryDefinitions(ImmutableSet<Country> countries, String filePath) {
+    LOG.debug("Writing country definitions to {}", filePath);
+    try {
+      new File(filePath).getParentFile().mkdirs();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+      writer.write('\ufeff');
+      for (String string : serialiseCountryDefinitions(countries)) {
+        writer.write(string);
+        writer.newLine();
+      }
+      writer.newLine();
+      writer.close();
+    } catch (Exception e) {
+      throw new RuntimeException("Could not write country definitions to " + filePath, e);
+    }
+  }
+
+  static List<String> serialiseCountryDefinitions(ImmutableSet<Country> countries) {
+    var result = new ArrayList<String>();
+    for (Country country : countries) {
+      result.add(format("%s = {", country.id()));
+      result.add(
+          format(
+              "  color = { %.3f %.3f %.3f }",
+              country.mapColor().red(), country.mapColor().green(), country.mapColor().blue()));
+      result.add(
+          format("  country_type = %s", country.countryType().name().toLowerCase(Locale.ROOT)));
+      result.add(format("  tier = %s", country.tier().name().toLowerCase(Locale.ROOT)));
+      result.add(
+          serialiseListOfStrings(
+              "cultures",
+              country.cultures().stream().map(Culture::id).collect(toImmutableSet()),
+              2));
+      result.add(format("  capital = %s", country.capitalState()));
+      result.add("}");
     }
     return result;
   }
@@ -133,5 +160,17 @@ public class CountryWriter {
   private static String formatDate(LocalDate date) {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.M.d");
     return date.format(formatter);
+  }
+
+  private static String serialiseListOfStrings(
+      String key, ImmutableSet<String> strings, int indentation) {
+    StringBuilder result = new StringBuilder();
+    result.append(" ".repeat(indentation));
+    result.append(format("%s = { ", key));
+    for (String string : strings) {
+      result.append("\"").append(string).append("\" ");
+    }
+    result.append("}");
+    return result.toString();
   }
 }

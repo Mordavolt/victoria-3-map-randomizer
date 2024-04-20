@@ -1,13 +1,13 @@
 package lv.kitn.generator;
 
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
 
 record Metadata(
     String name,
     String id,
     String version,
     String gameId,
-    List<String> tags,
+    ImmutableSet<String> tags,
     String supportedGameVersion,
     String shortDescription,
     GameCustomData gameCustomData) {

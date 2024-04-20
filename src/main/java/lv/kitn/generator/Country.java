@@ -23,4 +23,9 @@ public record Country(
     ImmutableMap<String, Integer> variables,
     ImmutableSet<String> journalEntries,
     // map of name to months
-    ImmutableMap<String, Integer> modifiers) {}
+    ImmutableMap<String, Integer> modifiers,
+    Color mapColor,
+    CountryType countryType,
+    CountryTier tier,
+    ImmutableSet<Culture> cultures,
+    String capitalState) {}
