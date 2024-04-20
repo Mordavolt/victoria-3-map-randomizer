@@ -27,7 +27,7 @@ public class CountryWriter {
       writer.write('\ufeff');
       writer.write("COUNTRIES = {");
       writer.newLine();
-      for (String string : serialiseHistoryCountries(countries)) {
+      for (String string : serializeHistoryCountries(countries)) {
         writer.write(string);
         writer.newLine();
       }
@@ -39,7 +39,7 @@ public class CountryWriter {
     }
   }
 
-  static List<String> serialiseHistoryCountries(ImmutableSet<Country> countries) {
+  static List<String> serializeHistoryCountries(ImmutableSet<Country> countries) {
     var result = new ArrayList<String>();
     for (Country country : countries) {
       result.add(format("  c:%s = {", country.id()));
@@ -115,7 +115,7 @@ public class CountryWriter {
       new File(filePath).getParentFile().mkdirs();
       BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
       writer.write('\ufeff');
-      for (String string : serialiseCountryDefinitions(countries)) {
+      for (String string : serializeCountryDefinitions(countries)) {
         writer.write(string);
         writer.newLine();
       }
@@ -126,7 +126,7 @@ public class CountryWriter {
     }
   }
 
-  static List<String> serialiseCountryDefinitions(ImmutableSet<Country> countries) {
+  static List<String> serializeCountryDefinitions(ImmutableSet<Country> countries) {
     var result = new ArrayList<String>();
     for (Country country : countries) {
       result.add(format("%s = {", country.id()));
@@ -138,12 +138,43 @@ public class CountryWriter {
           format("  country_type = %s", country.countryType().name().toLowerCase(Locale.ROOT)));
       result.add(format("  tier = %s", country.tier().name().toLowerCase(Locale.ROOT)));
       result.add(
-          serialiseListOfStrings(
+          serializeListOfStrings(
               "cultures",
               country.cultures().stream().map(Culture::id).collect(toImmutableSet()),
               2));
       result.add(format("  capital = %s", country.capitalState()));
       result.add("}");
+    }
+    return result;
+  }
+
+  public static void writeCountryLocalizations(
+      ImmutableSet<CountryLocalization> countryLocalizations, String filePath) {
+    LOG.debug("Writing country localizations to {}", filePath);
+    try {
+      new File(filePath).getParentFile().mkdirs();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+      writer.write('\ufeff');
+      writer.write("l_english:");
+      writer.newLine();
+      for (String string : serializeCountryLocalizations(countryLocalizations)) {
+        writer.write(string);
+        writer.newLine();
+      }
+      writer.newLine();
+      writer.close();
+    } catch (Exception e) {
+      throw new RuntimeException("Could not write country localizations to " + filePath, e);
+    }
+  }
+
+  static List<String> serializeCountryLocalizations(
+      ImmutableSet<CountryLocalization> countryLocalizations) {
+    var result = new ArrayList<String>();
+    for (CountryLocalization countryLocalization : countryLocalizations) {
+      result.add(format("  %s:0 \"%s\"", countryLocalization.id(), countryLocalization.name()));
+      result.add(
+          format("  %s_ADJ:0 \"%s\"", countryLocalization.id(), countryLocalization.adjective()));
     }
     return result;
   }
@@ -162,7 +193,7 @@ public class CountryWriter {
     return date.format(formatter);
   }
 
-  private static String serialiseListOfStrings(
+  private static String serializeListOfStrings(
       String key, ImmutableSet<String> strings, int indentation) {
     StringBuilder result = new StringBuilder();
     result.append(" ".repeat(indentation));

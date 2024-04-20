@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 final class CountryWriterTest {
 
   @Test
-  void serialiseHistoryStates() throws Exception {
+  void serializeHistoryStates() throws Exception {
     var country1 =
         new Country(
             "AAA",
@@ -77,7 +77,7 @@ final class CountryWriterTest {
             null,
             null,
             null);
-    var strings = CountryWriter.serialiseHistoryCountries(ImmutableSet.of(country1, country2));
+    var strings = CountryWriter.serializeHistoryCountries(ImmutableSet.of(country1, country2));
 
     assertThat(String.join("\n", strings) + "\n")
         .isEqualTo(
@@ -141,7 +141,7 @@ final class CountryWriterTest {
   }
 
   @Test
-  void serialiseCountryDefinitions() throws Exception {
+  void serializeCountryDefinitions() throws Exception {
     var country1 =
         new Country(
             "GER",
@@ -188,7 +188,7 @@ final class CountryWriterTest {
             ImmutableSet.of(new Culture("british"), new Culture("scottish")),
             "STATE_HOME_COUNTIES",
             null);
-    var strings = CountryWriter.serialiseCountryDefinitions(ImmutableSet.of(country1, country2));
+    var strings = CountryWriter.serializeCountryDefinitions(ImmutableSet.of(country1, country2));
 
     assertThat(String.join("\n", strings) + "\n")
         .isEqualTo(
@@ -208,5 +208,23 @@ GBR = {
   capital = STATE_HOME_COUNTIES
 }
         """);
+  }
+
+  @Test
+  void serializeCountryLocalizations() throws Exception {
+    var countryLocalization1 = new CountryLocalization("ABS", "Absaroka", "Absaroka");
+    var countryLocalization2 = new CountryLocalization("ABU", "Trucial States", "Trucial");
+    var strings =
+        CountryWriter.serializeCountryLocalizations(
+            ImmutableSet.of(countryLocalization1, countryLocalization2));
+
+    assertThat(String.join("\n", strings) + "\n")
+        .isEqualTo(
+            """
+  ABS:0 "Absaroka"
+  ABS_ADJ:0 "Absaroka"
+  ABU:0 "Trucial States"
+  ABU_ADJ:0 "Trucial"
+""");
   }
 }

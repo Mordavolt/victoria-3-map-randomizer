@@ -28,7 +28,7 @@ public class StateWriter {
       writer.write('\ufeff');
       writer.write("STATES = {");
       writer.newLine();
-      for (String string : serialiseHistoryStates(regionStates)) {
+      for (String string : serializeHistoryStates(regionStates)) {
         writer.write(string);
         writer.newLine();
       }
@@ -40,7 +40,7 @@ public class StateWriter {
     }
   }
 
-  static List<String> serialiseHistoryStates(ImmutableSet<RegionState> regionStates)
+  static List<String> serializeHistoryStates(ImmutableSet<RegionState> regionStates)
       throws IOException {
     var result = new ArrayList<String>();
     var stateToRegions = regionStates.stream().collect(groupingBy(RegionState::state));
@@ -49,7 +49,7 @@ public class StateWriter {
       for (RegionState regionState : entry.getValue()) {
         result.add("    create_state = {");
         result.add(format("      country = c:%s", regionState.country().id()));
-        result.add(serialiseListOfStrings("owned_provinces", regionState.ownedProvinces(), 6));
+        result.add(serializeListOfStrings("owned_provinces", regionState.ownedProvinces(), 6));
         result.add("    }");
       }
       for (Culture homelandCulture : entry.getKey().homelandCultures()) {
@@ -68,7 +68,7 @@ public class StateWriter {
       writer.write('\ufeff');
       writer.write("POPS = {");
       writer.newLine();
-      for (String string : serialiseHistoryPops(regionStates)) {
+      for (String string : serializeHistoryPops(regionStates)) {
         writer.write(string);
         writer.newLine();
       }
@@ -80,7 +80,7 @@ public class StateWriter {
     }
   }
 
-  static List<String> serialiseHistoryPops(ImmutableSet<RegionState> regionStates)
+  static List<String> serializeHistoryPops(ImmutableSet<RegionState> regionStates)
       throws IOException {
     var result = new ArrayList<String>();
     var stateToRegions = regionStates.stream().collect(groupingBy(RegionState::state));
@@ -114,7 +114,7 @@ public class StateWriter {
       writer.write('\ufeff');
       writer.write("BUILDINGS = {");
       writer.newLine();
-      for (String string : serialiseHistoryBuildings(regionStates)) {
+      for (String string : serializeHistoryBuildings(regionStates)) {
         writer.write(string);
         writer.newLine();
       }
@@ -126,7 +126,7 @@ public class StateWriter {
     }
   }
 
-  static List<String> serialiseHistoryBuildings(ImmutableSet<RegionState> regionStates)
+  static List<String> serializeHistoryBuildings(ImmutableSet<RegionState> regionStates)
       throws IOException {
     var result = new ArrayList<String>();
     var stateToRegions = regionStates.stream().collect(groupingBy(RegionState::state));
@@ -140,7 +140,7 @@ public class StateWriter {
           result.add(format("        level = %d", stateBuilding.level()));
           result.add(format("        reserves = %d", stateBuilding.reserves()));
           result.add(
-              serialiseListOfStrings(
+              serializeListOfStrings(
                   "activate_production_methods",
                   stateBuilding.activateProductionMethods().stream()
                       .map(ProductionMethodGroup::id)
@@ -162,7 +162,7 @@ public class StateWriter {
       new File(filePath).getParentFile().mkdirs();
       BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
       writer.write('\ufeff');
-      for (String string : serialiseStrategicRegions(strategicRegions)) {
+      for (String string : serializeStrategicRegions(strategicRegions)) {
         writer.write(string);
         writer.newLine();
       }
@@ -172,7 +172,7 @@ public class StateWriter {
     }
   }
 
-  static List<String> serialiseStrategicRegions(ImmutableSet<StrategicRegion> strategicRegions)
+  static List<String> serializeStrategicRegions(ImmutableSet<StrategicRegion> strategicRegions)
       throws IOException {
     var result = new ArrayList<String>();
     for (StrategicRegion strategicRegion : strategicRegions) {
@@ -188,7 +188,7 @@ public class StateWriter {
               strategicRegion.mapColor().blue()));
 
       result.add(
-          serialiseListOfStrings(
+          serializeListOfStrings(
               "states",
               strategicRegion.states().stream().map(State::variableName).collect(toImmutableSet()),
               2));
@@ -204,7 +204,7 @@ public class StateWriter {
       new File(filePath).getParentFile().mkdirs();
       BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
       writer.write('\ufeff');
-      for (String string : serialiseStateRegions(states)) {
+      for (String string : serializeStateRegions(states)) {
         writer.write(string);
         writer.newLine();
       }
@@ -214,22 +214,22 @@ public class StateWriter {
     }
   }
 
-  static List<String> serialiseStateRegions(ImmutableSet<State> states) throws IOException {
+  static List<String> serializeStateRegions(ImmutableSet<State> states) throws IOException {
     var result = new ArrayList<String>();
     for (State state : states) {
       result.add(format("%s = {", state.variableName()));
 
       result.add(format("  id = %s", state.id()));
       result.add(format("  subsistence_building = \"%s\"", state.substinenceBuilding().id()));
-      result.add(serialiseListOfStrings("provinces", state.provinces(), 2));
+      result.add(serializeListOfStrings("provinces", state.provinces(), 2));
       if (!state.impassable().isEmpty()) {
-        result.add(serialiseListOfStrings("impassable", state.impassable(), 2));
+        result.add(serializeListOfStrings("impassable", state.impassable(), 2));
       }
       if (!state.primeLand().isEmpty()) {
-        result.add(serialiseListOfStrings("prime_land", state.primeLand(), 2));
+        result.add(serializeListOfStrings("prime_land", state.primeLand(), 2));
       }
       if (!state.traits().isEmpty()) {
-        result.add(serialiseListOfStrings("traits", state.traits(), 2));
+        result.add(serializeListOfStrings("traits", state.traits(), 2));
       }
       for (Map.Entry<BuildingType, String> building : state.buildings().entrySet()) {
         result.add(
@@ -239,7 +239,7 @@ public class StateWriter {
       }
       result.add(format("  arable_land = %d", state.arableLand()));
       result.add(
-          serialiseListOfStrings(
+          serializeListOfStrings(
               "arable_resources",
               state.arableResources().stream().map(BuildingGroup::id).collect(toImmutableSet()),
               2));
@@ -274,7 +274,36 @@ public class StateWriter {
     return result;
   }
 
-  private static String serialiseListOfStrings(
+  public static void writeStateLocalizations(
+      ImmutableSet<StateLocalization> stateLocalizations, String filePath) {
+    LOG.debug("Writing state localizations to {}", filePath);
+    try {
+      new File(filePath).getParentFile().mkdirs();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+      writer.write('\ufeff');
+      writer.write("l_english:");
+      writer.newLine();
+      for (String string : serializeStateLocalizations(stateLocalizations)) {
+        writer.write(string);
+        writer.newLine();
+      }
+      writer.newLine();
+      writer.close();
+    } catch (Exception e) {
+      throw new RuntimeException("Could not write state localizations to " + filePath, e);
+    }
+  }
+
+  static List<String> serializeStateLocalizations(
+      ImmutableSet<StateLocalization> stateLocalizations) {
+    var result = new ArrayList<String>();
+    for (StateLocalization stateLocalization : stateLocalizations) {
+      result.add(format("  %s:0 \"%s\"", stateLocalization.id(), stateLocalization.name()));
+    }
+    return result;
+  }
+
+  private static String serializeListOfStrings(
       String key, ImmutableSet<String> strings, int indentation) {
     StringBuilder result = new StringBuilder();
     result.append(" ".repeat(indentation));

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 final class StateWriterTest {
 
   @Test
-  void serialiseHistoryStates() throws Exception {
+  void serializeHistoryStates() throws Exception {
     var state =
         new State(
             "STATE_MALAYA",
@@ -90,7 +90,7 @@ final class StateWriterTest {
             ImmutableSet.of(),
             ImmutableSet.of());
 
-    var strings = StateWriter.serialiseHistoryStates(ImmutableSet.of(regionState1, regionState2));
+    var strings = StateWriter.serializeHistoryStates(ImmutableSet.of(regionState1, regionState2));
 
     assertThat(String.join("\n", strings) + "\n")
         .isEqualTo(
@@ -110,7 +110,7 @@ final class StateWriterTest {
   }
 
   @Test
-  void serialiseHistoryPops() throws Exception {
+  void serializeHistoryPops() throws Exception {
     var state =
         new State(
             "STATE_MALAYA",
@@ -190,7 +190,7 @@ final class StateWriterTest {
                     new Culture("javan"), 5_400, Optional.of("animist"), Optional.of("slaves"))),
             ImmutableSet.of());
 
-    var strings = StateWriter.serialiseHistoryPops(ImmutableSet.of(regionState1, regionState2));
+    var strings = StateWriter.serializeHistoryPops(ImmutableSet.of(regionState1, regionState2));
 
     assertThat(String.join("\n", strings) + "\n")
         .isEqualTo(
@@ -224,7 +224,7 @@ final class StateWriterTest {
   }
 
   @Test
-  void serialiseHistoryBuildings() throws Exception {
+  void serializeHistoryBuildings() throws Exception {
     var state =
         new State(
             "STATE_MALAYA",
@@ -321,7 +321,7 @@ final class StateWriterTest {
                         new ProductionMethodGroup("pm_privately_owned")))));
 
     var strings =
-        StateWriter.serialiseHistoryBuildings(ImmutableSet.of(regionState1, regionState2));
+        StateWriter.serializeHistoryBuildings(ImmutableSet.of(regionState1, regionState2));
 
     assertThat(String.join("\n", strings) + "\n")
         .isEqualTo(
@@ -354,7 +354,7 @@ final class StateWriterTest {
   }
 
   @Test
-  void serialiseStrategicRegions() throws Exception {
+  void serializeStrategicRegions() throws Exception {
     var state1 =
         new State(
             "STATE_CAMBODIA",
@@ -419,7 +419,7 @@ final class StateWriterTest {
             ImmutableSet.of(state3));
 
     var strings =
-        StateWriter.serialiseStrategicRegions(ImmutableSet.of(strategicRegion1, strategicRegion2));
+        StateWriter.serializeStrategicRegions(ImmutableSet.of(strategicRegion1, strategicRegion2));
 
     assertThat(String.join("\n", strings) + "\n")
         .isEqualTo(
@@ -440,7 +440,7 @@ region_indonesia = {
   }
 
   @Test
-  void serialiseStateRegions() throws Exception {
+  void serializeStateRegions() throws Exception {
     var state1 =
         new State(
             "STATE_MALAYA",
@@ -513,7 +513,7 @@ region_indonesia = {
                     Optional.empty())),
             Optional.of(3052));
 
-    var strings = StateWriter.serialiseStateRegions(ImmutableSet.of(state1, state2));
+    var strings = StateWriter.serializeStateRegions(ImmutableSet.of(state1, state2));
 
     assertThat(String.join("\n", strings) + "\n")
         .isEqualTo(
@@ -570,5 +570,20 @@ STATE_WEST_BORNEO = {
   naval_exit_id = 3052
 }
                 """);
+  }
+
+  @Test
+  void serializeCountryLocalizations() throws Exception {
+    var stateLocalization1 = new StateLocalization("STATE_MINSK", "Minsk");
+    var stateLocalization2 = new StateLocalization("STATE_ALASKA", "Alaska");
+    var strings =
+        StateWriter.serializeStateLocalizations(
+            ImmutableSet.of(stateLocalization1, stateLocalization2));
+
+    assertThat(String.join("\n", strings) + "\n")
+        .isEqualTo("""
+  STATE_MINSK:0 "Minsk"
+  STATE_ALASKA:0 "Alaska"
+""");
   }
 }

@@ -19,7 +19,9 @@ record FileProperties(Input input, Output output) {
       String pops,
       String buildings,
       String countries,
+      String countryLocalization,
       String countryDefinitions,
       String strategicRegions,
-      String stateRegions) {}
+      String stateRegions,
+      String stateLocalization) {}
 }

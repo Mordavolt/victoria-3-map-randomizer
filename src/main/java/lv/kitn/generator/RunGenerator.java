@@ -105,6 +105,9 @@ class RunGenerator {
     var stateAdjacency = calculateStateAdjacency(states, fullAdjacency);
     var strategicRegions = generateStrategicRegions(states, stateAdjacency, random);
 
+    var countryLocalizations = generateCountryLocalizations(countries);
+    var stateLocalizations = generateStateLocalizations(states);
+
     //    var seaStates = ImmutableSet.<State>of();
     //    var seaStrategicRegions = ImmutableSet.<StrategicRegion>of();
 
@@ -118,9 +121,13 @@ class RunGenerator {
     StateWriter.writeStrategicRegions(
         strategicRegions, output.modPath() + output.strategicRegions());
     StateWriter.writeStateRegions(states, output.modPath() + output.stateRegions());
+    StateWriter.writeStateLocalizations(
+        stateLocalizations, output.modPath() + output.stateLocalization());
     CountryWriter.writeHistoryCountries(countries, output.modPath() + output.countries());
     CountryWriter.writeCountryDefinitions(
         countries, output.modPath() + output.countryDefinitions());
+    CountryWriter.writeCountryLocalizations(
+        countryLocalizations, output.modPath() + output.countryLocalization());
 
     LOG.debug("Generation done");
   }
@@ -263,6 +270,23 @@ class RunGenerator {
     return result.build();
   }
 
+  private static ImmutableSet<CountryLocalization> generateCountryLocalizations(
+      ImmutableSet<Country> countries) {
+    return countries.stream()
+        .map(
+            country ->
+                new CountryLocalization(
+                    country.id(), "name_" + country.id(), "adj_" + country.id()))
+        .collect(toImmutableSet());
+  }
+
+  private static ImmutableSet<StateLocalization> generateStateLocalizations(
+      ImmutableSet<State> states) {
+    return states.stream()
+        .map(state -> new StateLocalization(state.variableName(), "name_" + state.variableName()))
+        .collect(toImmutableSet());
+  }
+
   private static void writeEmptyFilesForOverride(String modPath, List<String> emptyFilesToCreate) {
     for (String relativePath : emptyFilesToCreate) {
       var filePath = modPath + relativePath;
@@ -334,14 +358,18 @@ class RunGenerator {
                 "/map_data/state_regions/11_east_asia.txt",
                 "/map_data/state_regions/12_indonesia.txt",
                 "/map_data/state_regions/13_australasia.txt",
-                "/map_data/state_regions/14_siberia.txt"),
+                "/map_data/state_regions/14_siberia.txt",
+                "/common/journal_entries/01_alaska.txt",
+                "/common/buildings/08_monuments.txt"),
             "/common/history/states/00_states.txt",
             "/common/history/pops/00_pops.txt",
             "/common/history/buildings/00_buildings.txt",
             "/common/history/countries/00_countries.txt",
+            "/localization/english/00_countries_l_english.yml",
             "/common/country_definitions/00_countries.txt",
             "/common/strategic_regions/00_strategic_regions.txt",
-            "/map_data/state_regions/00_state_regions.txt"));
+            "/map_data/state_regions/00_state_regions.txt",
+            "/localization/english/map/00_states_l_english.yml"));
   }
 
   private static Metadata getMetadata() {
