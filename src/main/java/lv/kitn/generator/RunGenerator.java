@@ -3,10 +3,10 @@ package lv.kitn.generator;
 import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.ImmutableSetMultimap.flatteningToImmutableSetMultimap;
 import static com.google.common.collect.ImmutableSetMultimap.toImmutableSetMultimap;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static lv.kitn.generator.CountryTier.KINGDOM;
-import static lv.kitn.generator.CountryType.RECOGNIZED;
+import static java.util.function.Function.identity;
 import static lv.kitn.generator.MapAdjacencyService.getGroups;
 import static lv.kitn.generator.Politics.TRADITIONAL;
 import static lv.kitn.generator.Terrain.LAKES;
@@ -62,12 +62,12 @@ class RunGenerator {
             input.gameInstallationPath() + input.adjacencies());
 
     var landAdditionalAdjacency =
-            additionalAdjacency.entries().stream()
-                    .filter(
-                            entry ->
-                                    landProvinces.contains(entry.getKey())
-                                            && landProvinces.contains(entry.getValue()))
-                    .collect(toImmutableSetMultimap(Map.Entry::getKey, Map.Entry::getValue));
+        additionalAdjacency.entries().stream()
+            .filter(
+                entry ->
+                    landProvinces.contains(entry.getKey())
+                        && landProvinces.contains(entry.getValue()))
+            .collect(toImmutableSetMultimap(Map.Entry::getKey, Map.Entry::getValue));
 
     var fullAdjacency =
         ImmutableSetMultimap.<String, String>builder()
@@ -86,37 +86,23 @@ class RunGenerator {
             .flatMap(Collection::stream)
             .toList();
 
-    var groupedProvinces = getGroups(fullAdjacency, 100);
+    var groupedProvincesForCountries = getGroups(fullAdjacency, 200, random, 0.9);
+    var countries = generateCountries(groupedProvincesForCountries, random);
 
-    var countries =
-        ImmutableSet.of(
-            new Country(
-                "AAA",
-                ImmutableSet.of(),
-                ImmutableSet.of(),
-                ImmutableSet.of(),
-                TRADITIONAL,
-                4,
-                Optional.empty(),
-                ImmutableMap.of(),
-                2,
-                ImmutableMap.of(),
-                ImmutableSet.of(),
-                ImmutableMap.of(),
-                ImmutableMap.of(),
-                ImmutableSet.of(),
-                ImmutableMap.of(),
-                new Color(255.0, 1.0, 0.0),
-                RECOGNIZED,
-                KINGDOM,
-                ImmutableSet.of(new Culture("malay")),
-                "STATE_1"));
+    var groupedProvincesForStates = getGroups(fullAdjacency, 100, random, 0.5);
+    var states = generateStates(groupedProvincesForStates, buildings);
 
-    var states = generateStates(groupedProvinces, buildings);
+    var provinceToState =
+        states.stream()
+            .<Map.Entry<String, State>>mapMulti(
+                (state, consumer) ->
+                    state.provinces().stream()
+                        .forEach(province -> consumer.accept(Map.entry(province, state))))
+            .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    var regionStates = generateRegionStates(states, countries, provinceToState);
 
     var stateAdjacency = calculateStateAdjacency(states, fullAdjacency);
-
-    var regionStates = generateRegionStates(states, countries);
     var strategicRegions = generateStrategicRegions(states, stateAdjacency, random);
 
     //    var seaStates = ImmutableSet.<State>of();
@@ -156,6 +142,39 @@ class RunGenerator {
         .collect(toImmutableSetMultimap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
+  private static ImmutableSet<Country> generateCountries(
+      ImmutableSet<ImmutableSet<String>> groupedProvinces, Random random) {
+    LOG.debug("Generating countries");
+    var result = ImmutableSet.<Country>builder();
+    int i = 0;
+    for (var provinces : groupedProvinces) {
+      result.add(
+          new Country(
+              "COUNTRY_" + i++,
+              ImmutableSet.of(),
+              ImmutableSet.of(),
+              ImmutableSet.of(),
+              TRADITIONAL,
+              4,
+              Optional.empty(),
+              ImmutableMap.of(),
+              2,
+              ImmutableMap.of(),
+              ImmutableSet.of(),
+              ImmutableMap.of(),
+              ImmutableMap.of(),
+              ImmutableSet.of(),
+              ImmutableMap.of(),
+              new Color(random.nextDouble(), random.nextDouble(), random.nextDouble()),
+              CountryType.values()[random.nextInt(CountryType.values().length)],
+              CountryTier.values()[random.nextInt(CountryTier.values().length)],
+              ImmutableSet.of(new Culture("malay")),
+              provinces.iterator().next(),
+              provinces));
+    }
+    return result.build();
+  }
+
   private static ImmutableSet<State> generateStates(
       ImmutableSet<ImmutableSet<String>> groupedProvinces, List<Building> buildings) {
     LOG.debug("Generating states");
@@ -189,18 +208,33 @@ class RunGenerator {
   }
 
   private static ImmutableSet<RegionState> generateRegionStates(
-      ImmutableSet<State> states, ImmutableSet<Country> countries) {
+      ImmutableSet<State> states,
+      ImmutableSet<Country> countries,
+      ImmutableMap<String, State> provinceToState) {
     LOG.debug("Generating region states");
     var result = ImmutableSet.<RegionState>builder();
+
+    ImmutableSetMultimap<State, Country> stateToCountriesPresentInState =
+        countries.stream()
+            .collect(
+                flatteningToImmutableSetMultimap(
+                    identity(), country -> country.provinces().stream().map(provinceToState::get)))
+            .inverse();
+
     for (var state : states) {
-      result.add(
-          new RegionState(
-              state,
-              countries.iterator().next(),
-              state.provinces(),
-              ImmutableSet.of(
-                  new Population(new Culture("malay"), 100_00, Optional.empty(), Optional.empty())),
-              ImmutableSet.of()));
+      for (Country country : stateToCountriesPresentInState.get(state)) {
+        result.add(
+            new RegionState(
+                state,
+                country,
+                state.provinces().stream()
+                    .filter(province -> country.provinces().contains(province))
+                    .collect(toImmutableSet()),
+                ImmutableSet.of(
+                    new Population(
+                        new Culture("malay"), 100_00, Optional.empty(), Optional.empty())),
+                ImmutableSet.of()));
+      }
     }
     return result.build();
   }
@@ -212,7 +246,7 @@ class RunGenerator {
     LOG.debug("Generating strategic regions");
     var stateMap = Maps.uniqueIndex(states, State::variableName);
     var stateGroups =
-        getGroups(stateAdjacency, 10).stream()
+        getGroups(stateAdjacency, 10, random, 0.5).stream()
             .map(stateNames -> stateNames.stream().map(stateMap::get).collect(toImmutableSet()))
             .collect(toImmutableSet());
     var result = ImmutableSet.<StrategicRegion>builder();

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import javax.imageio.ImageIO;
 import org.slf4j.Logger;
@@ -106,12 +107,21 @@ public class MapAdjacencyService {
   }
 
   public static ImmutableSet<ImmutableSet<String>> getGroups(
-      ImmutableSetMultimap<String, String> adjacencyMatrix, Integer targetGroupSize) {
+      ImmutableSetMultimap<String, String> adjacencyMatrix,
+      Integer targetGroupSize,
+      Random random,
+      Double randomnessVariation) {
     LOG.debug("Calculating groups with min size of {}", targetGroupSize);
     var groups = new HashSet<Set<String>>();
     var visited = new HashSet<String>();
+    var target = targetGroupSize;
+    int lowerBound = (int) (target - (target * randomnessVariation));
+    int upperBound = (int) (target + (target * randomnessVariation));
 
     for (var province : adjacencyMatrix.keySet()) {
+      if (randomnessVariation != 1) {
+        target = lowerBound + random.nextInt(upperBound - lowerBound + 1);
+      }
       if (visited.contains(province)) {
         continue;
       }
@@ -120,7 +130,7 @@ public class MapAdjacencyService {
       group.add(province);
       var currentProvince = province;
       var i = 0;
-      while (group.size() < targetGroupSize) {
+      while (group.size() < target) {
         for (var adjacent : adjacencyMatrix.get(currentProvince)) {
           if (!visited.contains(adjacent)) {
             visited.add(adjacent);
@@ -135,7 +145,8 @@ public class MapAdjacencyService {
       groups.add(new HashSet<>(group));
     }
 
-    consolidateSmallGroups(groups, adjacencyMatrix, targetGroupSize / 5);
+    consolidateSmallGroups(
+        groups, adjacencyMatrix, (randomnessVariation > 0 ? lowerBound : targetGroupSize) / 5);
 
     return groups.stream()
         .filter(not(Set::isEmpty))

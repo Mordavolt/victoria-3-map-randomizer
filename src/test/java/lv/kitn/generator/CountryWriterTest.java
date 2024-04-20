@@ -52,6 +52,7 @@ final class CountryWriterTest {
             null,
             null,
             null,
+            null,
             null);
     var country2 =
         new Country(
@@ -70,6 +71,7 @@ final class CountryWriterTest {
             ImmutableMap.of(),
             ImmutableSet.of(),
             ImmutableMap.of(),
+            null,
             null,
             null,
             null,
@@ -161,7 +163,8 @@ final class CountryWriterTest {
             RECOGNIZED,
             EMPIRE,
             ImmutableSet.of(new Culture("north_german"), new Culture("south_german")),
-            "STATE_BRANDENBURG");
+            "STATE_BRANDENBURG",
+            null);
     var country2 =
         new Country(
             "GBR",
@@ -183,7 +186,8 @@ final class CountryWriterTest {
             DECENTRALIZED,
             PRINCIPALITY,
             ImmutableSet.of(new Culture("british"), new Culture("scottish")),
-            "STATE_HOME_COUNTIES");
+            "STATE_HOME_COUNTIES",
+            null);
     var strings = CountryWriter.serialiseCountryDefinitions(ImmutableSet.of(country1, country2));
 
     assertThat(String.join("\n", strings) + "\n")

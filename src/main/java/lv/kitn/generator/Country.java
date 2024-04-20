@@ -24,8 +24,10 @@ public record Country(
     ImmutableSet<String> journalEntries,
     // map of name to months
     ImmutableMap<String, Integer> modifiers,
+    // It's decimal, but values are 1.0 - 255.0 FML
     Color mapColor,
     CountryType countryType,
     CountryTier tier,
     ImmutableSet<Culture> cultures,
-    String capitalState) {}
+    String capitalState,
+    ImmutableSet<String> provinces) {}
