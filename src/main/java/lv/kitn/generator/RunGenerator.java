@@ -61,10 +61,18 @@ class RunGenerator {
         MapAdjacencyService.loadAdditionalAdjacencyMatrix(
             input.gameInstallationPath() + input.adjacencies());
 
+    var landAdditionalAdjacency =
+            additionalAdjacency.entries().stream()
+                    .filter(
+                            entry ->
+                                    landProvinces.contains(entry.getKey())
+                                            && landProvinces.contains(entry.getValue()))
+                    .collect(toImmutableSetMultimap(Map.Entry::getKey, Map.Entry::getValue));
+
     var fullAdjacency =
         ImmutableSetMultimap.<String, String>builder()
             .putAll(landAdjacencyMatrix)
-            .putAll(additionalAdjacency)
+            .putAll(landAdditionalAdjacency)
             .build();
 
     //
