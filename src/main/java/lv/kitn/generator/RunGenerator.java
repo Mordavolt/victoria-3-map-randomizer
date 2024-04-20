@@ -1,5 +1,6 @@
 package lv.kitn.generator;
 
+import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.ImmutableSetMultimap.toImmutableSetMultimap;
@@ -9,6 +10,7 @@ import static lv.kitn.generator.Politics.TRADITIONAL;
 import static lv.kitn.generator.Terrain.LAKES;
 import static lv.kitn.generator.Terrain.OCEAN;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -107,6 +109,7 @@ class RunGenerator {
 
     var output = properties.output();
 
+    writeMetadata(output.modPath() + output.metadata(), getMetadata());
     writeEmptyFilesForOverride(output.modPath(), output.emptyFilesToCreate());
     StateWriter.writeHistoryStates(regionStates, output.modPath() + output.states());
     StateWriter.writeHistoryPops(regionStates, output.modPath() + output.pops());
@@ -225,6 +228,19 @@ class RunGenerator {
     }
   }
 
+  private static void writeMetadata(String metadataPath, Metadata metadata) {
+    LOG.debug("Writing metadata to {}", metadataPath);
+    try {
+      new File(metadataPath).getParentFile().mkdirs();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(metadataPath, UTF_8));
+
+      ObjectMapper objectMapper = new ObjectMapper().enable(INDENT_OUTPUT);
+      objectMapper.writeValue(writer, metadata);
+    } catch (Exception e) {
+      throw new RuntimeException("Could not write metadata to " + metadataPath, e);
+    }
+  }
+
   private static FileProperties getProperties() {
     var gamePath = "C:/Program Files (x86)/Steam/steamapps/common/Victoria 3/game";
     var modPath = "C:/Users/Admin/Documents/Paradox Interactive/Victoria 3/mod/random_world";
@@ -251,6 +267,7 @@ class RunGenerator {
             "/common/building_groups/00_building_groups.txt"),
         new FileProperties.Output(
             modPath,
+            "/.metadata/metadata.json",
             List.of(
                 "/map_data/state_regions/00_west_europe.txt",
                 "/map_data/state_regions/01_south_europe.txt",
@@ -273,5 +290,17 @@ class RunGenerator {
             "/common/history/countries/00_countries.txt",
             "/common/strategic_regions/00_strategic_regions.txt",
             "/map_data/state_regions/00_state_regions.txt"));
+  }
+
+  private static Metadata getMetadata() {
+    return new Metadata(
+        "Random World",
+        "random_world",
+        "0.0.1",
+        "victoria3",
+        List.of("random"),
+        "1.6.*",
+        "Random World",
+        new Metadata.GameCustomData(true));
   }
 }
