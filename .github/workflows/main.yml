@@ -51,7 +51,7 @@ jobs:
           file: target/victoria-3-map-randomizer-*
           args: '-7'
       - name: Upload artifacts
-        run: mkdir staging && for file in victoria-3-map-randomizer-*; do cp "$file" "${file}-amd64"; done
+        run: rm -rf victoria-3-map-randomizer-*.jar && mkdir staging && for file in victoria-3-map-randomizer-*; do cp "$file" "${file}-amd64"; done
       - uses: actions/upload-artifact@v4
         with:
           name: package
@@ -76,7 +76,7 @@ jobs:
           file: target/victoria-3-map-randomizer-*
           args: '-7'
       - name: Upload artifacts
-        run: mkdir staging && for file in victoria-3-map-randomizer-*; do cp "$file" "${file}-amd64"; done
+        run: rm -rf victoria-3-map-randomizer-*.jar && mkdir staging && for file in victoria-3-map-randomizer-*; do cp "$file" "${file}-amd64"; done
       - uses: actions/upload-artifact@v4
         with:
           name: package

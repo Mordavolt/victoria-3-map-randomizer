@@ -101,6 +101,9 @@
                 <configuration>
                     <imageName>${project.artifactId}-${project.version}</imageName>
                     <mainClass>lv.kitn.generator.RunGenerator</mainClass>
+                    <buildArgs>
+                        <buildArg>--no-fallback</buildArg>
+                    </buildArgs>
                 </configuration>
             </plugin>
             <plugin>
