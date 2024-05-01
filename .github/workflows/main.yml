@@ -10,9 +10,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: ilammy/msvc-dev-cmd@v1.5.0
-      - uses: microsoft/setup-msbuild@v1
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1.13.0
+      - uses: microsoft/setup-msbuild@v2
       - uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21'
@@ -22,12 +22,12 @@ jobs:
         run: mvn -DskipTests -B clean package native-image:native-image --file pom.xml
         shell: powershell
       - name: Run UPX
-        uses: crazy-max/ghaction-upx@v1.3.3
+        uses: crazy-max/ghaction-upx@v3.0.0
         with:
           version: latest
-          file: target/victoria-3-randomizer.exe
+          file: target/victoria-3-map-randomizer-*.exe
           args: '-7'
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           if-no-files-found: warn
           name: package
@@ -37,7 +37,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21'
@@ -46,13 +46,13 @@ jobs:
       - name: Build with Maven
         run: mvn -DskipTests -B clean package native-image:native-image --file pom.xml
       - name: Run UPX
-        uses: svenstaro/upx-action@v2
+        uses: svenstaro/upx-action@2.4.1
         with:
-          file: target/victoria-3-randomizer
+          file: target/victoria-3-map-randomizer-*
           args: '-7'
       - name: Upload artifacts
-        run: mkdir staging && cp target/victoria-3-randomizer staging/victoria-3-randomizer-mac-amd64
-      - uses: actions/upload-artifact@v2
+        run: mkdir staging && for file in victoria-3-map-randomizer-*; do cp "$file" "${file}-amd64"; done
+      - uses: actions/upload-artifact@v4
         with:
           name: package
           path: staging
@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21'
@@ -70,14 +70,14 @@ jobs:
       - name: Build with Maven
         run: mvn -DskipTests -B clean package native-image:native-image --file pom.xml
       - name: Run UPX
-        uses: crazy-max/ghaction-upx@v1.3.3
+        uses: crazy-max/ghaction-upx@v3.0.0
         with:
           version: latest
-          file: target/victoria-3-randomizer
+          file: target/victoria-3-map-randomizer-*
           args: '-7'
       - name: Upload artifacts
-        run: mkdir staging && cp target/victoria-3-randomizer staging/victoria-3-randomizer-linux-amd64
-      - uses: actions/upload-artifact@v2
+        run: mkdir staging && for file in victoria-3-map-randomizer-*; do cp "$file" "${file}-amd64"; done
+      - uses: actions/upload-artifact@v4
         with:
           name: package
           path: staging

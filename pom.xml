@@ -99,6 +99,7 @@
                 <artifactId>native-image-maven-plugin</artifactId>
                 <version>21.2.0</version>
                 <configuration>
+                    <imageName>${project.artifactId}-${project.version}</imageName>
                     <mainClass>lv.kitn.generator.RunGenerator</mainClass>
                 </configuration>
             </plugin>
