@@ -16,7 +16,7 @@ jobs:
       - uses: ayltai/setup-graalvm@v1
         with:
           java-version: 21
-          graalvm-version: 20.3.0
+          graalvm-version: 21.2.0
           native-image: true
       - name: Build with Maven
         run: mvn -DskipTests -B clean package native-image:native-image --file pom.xml
@@ -41,7 +41,7 @@ jobs:
       - uses: ayltai/setup-graalvm@v1
         with:
           java-version: 21
-          graalvm-version: 20.3.0
+          graalvm-version: 21.2.0
           native-image: true
       - name: Build with Maven
         run: mvn -DskipTests -B clean package native-image:native-image --file pom.xml
@@ -65,7 +65,7 @@ jobs:
       - uses: ayltai/setup-graalvm@v1
         with:
           java-version: 21
-          graalvm-version: 20.3.0
+          graalvm-version: 21.2.0
           native-image: true
       - name: Build with Maven
         run: mvn -DskipTests -B clean package native-image:native-image --file pom.xml
@@ -81,4 +81,4 @@ jobs:
         with:
           name: package
           path: staging
-  
+
