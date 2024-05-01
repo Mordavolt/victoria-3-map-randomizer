@@ -1,0 +1,84 @@
+name: GraalVM Native Image build
+
+on:
+  push:
+    branches: [ master ]
+    tags: [ '*' ]
+
+jobs:
+  buildOnWindows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ilammy/msvc-dev-cmd@v1.5.0
+      - uses: microsoft/setup-msbuild@v1
+      - uses: ayltai/setup-graalvm@v1
+        with:
+          java-version: 21
+          graalvm-version: 20.3.0
+          native-image: true
+      - name: Build with Maven
+        run: mvn -DskipTests -B clean package native-image:native-image --file pom.xml
+        shell: powershell
+      - name: Run UPX
+        uses: crazy-max/ghaction-upx@v1.3.3
+        with:
+          version: latest
+          file: target/victoria-3-randomizer.exe
+          args: '-7'
+      - uses: actions/upload-artifact@v2
+        with:
+          if-no-files-found: warn
+          name: package
+          path: target/*.exe
+
+  buildOnMac:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ayltai/setup-graalvm@v1
+        with:
+          java-version: 21
+          graalvm-version: 20.3.0
+          native-image: true
+      - name: Build with Maven
+        run: mvn -DskipTests -B clean package native-image:native-image --file pom.xml
+      - name: Run UPX
+        uses: svenstaro/upx-action@v2
+        with:
+          file: target/victoria-3-randomizer
+          args: '-7'
+      - name: Upload artifacts
+        run: mkdir staging && cp target/victoria-3-randomizer staging/victoria-3-randomizer-mac-amd64
+      - uses: actions/upload-artifact@v2
+        with:
+          name: package
+          path: staging
+
+  buildOnLinux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ayltai/setup-graalvm@v1
+        with:
+          java-version: 21
+          graalvm-version: 20.3.0
+          native-image: true
+      - name: Build with Maven
+        run: mvn -DskipTests -B clean package native-image:native-image --file pom.xml
+      - name: Run UPX
+        uses: crazy-max/ghaction-upx@v1.3.3
+        with:
+          version: latest
+          file: target/victoria-3-randomizer
+          args: '-7'
+      - name: Upload artifacts
+        run: mkdir staging && cp target/victoria-3-randomizer staging/victoria-3-randomizer-linux-amd64
+      - uses: actions/upload-artifact@v2
+        with:
+          name: package
+          path: staging
+  
