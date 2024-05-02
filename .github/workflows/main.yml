@@ -1,4 +1,4 @@
-name: GraalVM Native Image build
+name: Build and Release
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
     tags: [ '*' ]
 
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
