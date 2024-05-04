@@ -6,11 +6,11 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.ImmutableSetMultimap.flatteningToImmutableSetMultimap;
 import static com.google.common.collect.ImmutableSetMultimap.toImmutableSetMultimap;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.Map.entry;
 import static java.util.function.Function.identity;
 import static lv.kitn.generator.MapAdjacencyService.getGroups;
 import static lv.kitn.generator.Politics.TRADITIONAL;
-import static lv.kitn.generator.Terrain.LAKES;
-import static lv.kitn.generator.Terrain.OCEAN;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
@@ -39,11 +39,7 @@ class RunGenerator {
     var provinces =
         ProvinceLoader.loadProvinces(input.gameInstallationPath() + input.provinceTerrains());
 
-    var landProvinces =
-        provinces.stream()
-            .filter(province -> province.terrain() != OCEAN && province.terrain() != LAKES)
-            .map(Province::id)
-            .collect(toImmutableSet());
+    var landProvinces = Maps.filterValues(provinces, Terrain::isLand).keySet();
 
     var adjacencyMatrix =
         MapAdjacencyService.findAdjacencyMatrix(
@@ -53,8 +49,8 @@ class RunGenerator {
         adjacencyMatrix.entries().stream()
             .filter(
                 entry ->
-                    landProvinces.contains(entry.getKey())
-                        && landProvinces.contains(entry.getValue()))
+                    provinces.get(entry.getKey()).isLand()
+                        && provinces.get(entry.getValue()).isLand())
             .collect(toImmutableSetMultimap(Map.Entry::getKey, Map.Entry::getValue));
 
     var additionalAdjacency =
@@ -65,8 +61,8 @@ class RunGenerator {
         additionalAdjacency.entries().stream()
             .filter(
                 entry ->
-                    landProvinces.contains(entry.getKey())
-                        && landProvinces.contains(entry.getValue()))
+                    provinces.get(entry.getKey()).isLand()
+                        && provinces.get(entry.getValue()).isLand())
             .collect(toImmutableSetMultimap(Map.Entry::getKey, Map.Entry::getValue));
 
     var fullAdjacency =
@@ -74,6 +70,16 @@ class RunGenerator {
             .putAll(landAdjacencyMatrix)
             .putAll(landAdditionalAdjacency)
             .build();
+
+    var coastalProvinces =
+        adjacencyMatrix.entries().stream()
+            .filter(entry -> !provinces.get(entry.getValue()).isLand())
+            .map(Map.Entry::getKey)
+            .filter(landProvinces::contains)
+            .collect(toImmutableSet());
+
+    var provincePrefabs =
+        Maps.uniqueIndex(generateProvincePrefabs(provinces, coastalProvinces), ProvincePrefab::id);
 
     //
     //    var buildingGroups =
@@ -87,10 +93,10 @@ class RunGenerator {
             .toList();
 
     var groupedProvincesForCountries = getGroups(fullAdjacency, 200, random, 0.9);
-    var countries = generateCountries(groupedProvincesForCountries, random);
+    var countries = generateCountries(groupedProvincesForCountries, provincePrefabs, random);
 
     var groupedProvincesForStates = getGroups(fullAdjacency, 100, random, 0.5);
-    var states = generateStates(groupedProvincesForStates, buildings);
+    var states = generateStates(groupedProvincesForStates, buildings, provincePrefabs, random);
 
     var provinceToState =
         states.stream()
@@ -100,7 +106,7 @@ class RunGenerator {
                         .forEach(province -> consumer.accept(Map.entry(province, state))))
             .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    var regionStates = generateRegionStates(states, countries, provinceToState);
+    var regionStates = generateRegionStates(states, countries, provinceToState, provincePrefabs);
 
     var stateAdjacency = calculateStateAdjacency(states, fullAdjacency);
     var strategicRegions = generateStrategicRegions(states, stateAdjacency, random);
@@ -132,6 +138,23 @@ class RunGenerator {
     LOG.debug("Generation done");
   }
 
+  private static ImmutableSet<ProvincePrefab> generateProvincePrefabs(
+      ImmutableMap<String, Terrain> provinces, ImmutableSet<String> coastalProvinces) {
+    return provinces.entrySet().stream()
+        .map(
+            entry ->
+                new ProvincePrefab(
+                    entry.getKey(),
+                    entry.getValue(),
+                    coastalProvinces.contains(entry.getKey()),
+                    ImmutableMap.of(
+                        new Population(new Culture("malay"), Optional.empty(), Optional.empty()),
+                        1_000),
+                    ImmutableMap.of(new BuildingGroup("bg_coal_mining"), 1),
+                    ImmutableMap.of(new BuildingGroup("bg_rubber"), 1)))
+        .collect(toImmutableSet());
+  }
+
   private static ImmutableSetMultimap<String, String> calculateStateAdjacency(
       ImmutableSet<State> states, ImmutableSetMultimap<String, String> fullAdjacency) {
     LOG.debug("Calculating state adjacency");
@@ -150,11 +173,25 @@ class RunGenerator {
   }
 
   private static ImmutableSet<Country> generateCountries(
-      ImmutableSet<ImmutableSet<String>> groupedProvinces, Random random) {
+      ImmutableSet<ImmutableSet<String>> groupedProvinces,
+      ImmutableMap<String, ProvincePrefab> provincePrefabs,
+      Random random) {
     LOG.debug("Generating countries");
     var result = ImmutableSet.<Country>builder();
     int i = 0;
     for (var provinces : groupedProvinces) {
+      var topCulture =
+          provinces.stream()
+              .map(provincePrefabs::get)
+              .map(ProvincePrefab::populations)
+              .map(ImmutableMap::entrySet)
+              .flatMap(Collection::stream)
+              .collect(toImmutableMap(p -> p.getKey().culture(), Map.Entry::getValue, Integer::sum))
+              .entrySet()
+              .stream()
+              .max(comparingByValue())
+              .map(Map.Entry::getKey)
+              .orElseThrow();
       result.add(
           new Country(
               "COUNTRY_" + i++,
@@ -175,7 +212,7 @@ class RunGenerator {
               new Color(random.nextDouble(), random.nextDouble(), random.nextDouble()),
               CountryType.values()[random.nextInt(CountryType.values().length)],
               CountryTier.values()[random.nextInt(CountryTier.values().length)],
-              ImmutableSet.of(new Culture("malay")),
+              ImmutableSet.of(topCulture),
               provinces.iterator().next(),
               provinces));
     }
@@ -183,11 +220,40 @@ class RunGenerator {
   }
 
   private static ImmutableSet<State> generateStates(
-      ImmutableSet<ImmutableSet<String>> groupedProvinces, List<Building> buildings) {
+      ImmutableSet<ImmutableSet<String>> groupedProvinces,
+      List<Building> buildings,
+      ImmutableMap<String, ProvincePrefab> provincePrefabs,
+      Random random) {
     LOG.debug("Generating states");
     var result = ImmutableSet.<State>builder();
     int i = 0;
     for (var provinces : groupedProvinces) {
+      var cappedResources =
+          provinces.stream()
+              .map(provincePrefabs::get)
+              .map(ProvincePrefab::cappedResources)
+              .map(ImmutableMap::entrySet)
+              .flatMap(Collection::stream)
+              .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum));
+      var discoverableResources =
+          provinces.stream()
+              .map(provincePrefabs::get)
+              .map(ProvincePrefab::discoverableResources)
+              .map(ImmutableMap::entrySet)
+              .flatMap(Collection::stream)
+              .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum))
+              .entrySet()
+              .stream()
+              .map(
+                  entry -> {
+                    var undiscovered = random.nextInt(entry.getValue() + 1);
+                    return new DiscoverableResource(
+                        entry.getKey(),
+                        Optional.empty(),
+                        undiscovered,
+                        Optional.of(entry.getValue() - undiscovered));
+                  })
+              .collect(toImmutableSet());
       result.add(
           new State(
               "STATE_" + i,
@@ -204,10 +270,8 @@ class RunGenerator {
               ImmutableMap.of(),
               20,
               ImmutableSet.of(new BuildingGroup("bg_rice_farms")),
-              ImmutableMap.of(new BuildingGroup("bg_coal_mining"), 13),
-              ImmutableSet.of(
-                  new DiscoverableResource(
-                      new BuildingGroup("bg_rubber"), Optional.empty(), 23, Optional.empty())),
+              cappedResources,
+              discoverableResources,
               Optional.empty()));
       i++;
     }
@@ -217,7 +281,8 @@ class RunGenerator {
   private static ImmutableSet<RegionState> generateRegionStates(
       ImmutableSet<State> states,
       ImmutableSet<Country> countries,
-      ImmutableMap<String, State> provinceToState) {
+      ImmutableMap<String, State> provinceToState,
+      ImmutableMap<String, ProvincePrefab> provincePrefabs) {
     LOG.debug("Generating region states");
     var result = ImmutableSet.<RegionState>builder();
 
@@ -230,17 +295,21 @@ class RunGenerator {
 
     for (var state : states) {
       for (Country country : stateToCountriesPresentInState.get(state)) {
+        var countryProvincesInThisState =
+            state.provinces().stream()
+                .filter(province -> country.provinces().contains(province))
+                .collect(toImmutableSet());
+
+        var populations =
+            countryProvincesInThisState.stream()
+                .map(provincePrefabs::get)
+                .map(ProvincePrefab::populations)
+                .map(ImmutableMap::entrySet)
+                .flatMap(Collection::stream)
+                .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum));
         result.add(
             new RegionState(
-                state,
-                country,
-                state.provinces().stream()
-                    .filter(province -> country.provinces().contains(province))
-                    .collect(toImmutableSet()),
-                ImmutableSet.of(
-                    new Population(
-                        new Culture("malay"), 100_00, Optional.empty(), Optional.empty())),
-                ImmutableSet.of()));
+                state, country, countryProvincesInThisState, populations, ImmutableSet.of()));
       }
     }
     return result.build();

@@ -88,14 +88,18 @@ public class StateWriter {
       result.add(format("  s:%s = {", entry.getKey().variableName()));
       for (RegionState regionState : entry.getValue()) {
         result.add(format("    region_state:%s = {", regionState.country().id()));
-        for (Population population : regionState.populations()) {
+        for (Map.Entry<Population, Integer> population : regionState.populations().entrySet()) {
           result.add("      create_pop = {");
-          population.popType().ifPresent(type -> result.add(format("        pop_type = %s", type)));
-          result.add(format("        culture = %s", population.culture().id()));
           population
+              .getKey()
+              .popType()
+              .ifPresent(type -> result.add(format("        pop_type = %s", type)));
+          result.add(format("        culture = %s", population.getKey().culture().id()));
+          population
+              .getKey()
               .religion()
               .ifPresent(religion -> result.add(format("        religion = %s", religion)));
-          result.add(format("        size = %d", population.size()));
+          result.add(format("        size = %d", population.getValue()));
           result.add("      }");
         }
         result.add("    }");

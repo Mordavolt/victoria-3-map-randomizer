@@ -13,4 +13,8 @@ public enum Terrain {
   SNOW,
   TUNDRA,
   WETLAND;
+
+  public boolean isLand() {
+    return this != OCEAN && this != LAKES;
+  }
 }

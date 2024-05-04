@@ -3,6 +3,7 @@ package lv.kitn.generator;
 import static lv.kitn.generator.Terrain.DESERT;
 import static lv.kitn.generator.Terrain.PLAINS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import java.io.StringReader;
 import org.antlr.v4.runtime.CharStreams;
@@ -23,9 +24,6 @@ final class ProvinceLoaderTest {
     var provinces = ProvinceLoader.getProvinces(charStream);
 
     assertThat(provinces)
-        .contains(
-            new Province("x48E2A5", DESERT),
-            new Province("x5011E0", PLAINS),
-            new Province("xC09060", PLAINS));
+        .contains(entry("x48E2A5", DESERT), entry("x5011E0", PLAINS), entry("xC09060", PLAINS));
   }
 }

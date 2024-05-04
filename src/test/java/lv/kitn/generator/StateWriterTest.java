@@ -59,7 +59,7 @@ final class StateWriterTest {
                 null,
                 null),
             ImmutableSet.of("x76546D", "x0080B0"),
-            ImmutableSet.of(),
+            ImmutableMap.of(),
             ImmutableSet.of());
     var regionState2 =
         new RegionState(
@@ -87,7 +87,7 @@ final class StateWriterTest {
                 null,
                 null),
             ImmutableSet.of("xF9F87A", "x80C0B0", "xCAB9F2"),
-            ImmutableSet.of(),
+            ImmutableMap.of(),
             ImmutableSet.of());
 
     var strings = StateWriter.serializeHistoryStates(ImmutableSet.of(regionState1, regionState2));
@@ -153,10 +153,10 @@ final class StateWriterTest {
                 null,
                 null),
             ImmutableSet.of(),
-            ImmutableSet.of(
-                new Population(new Culture("malay"), 399_600, Optional.empty(), Optional.empty()),
-                new Population(
-                    new Culture("malay"), 11_000, Optional.empty(), Optional.of("slaves"))),
+            ImmutableMap.of(
+                new Population(new Culture("malay"), Optional.empty(), Optional.empty()), 399_600,
+                new Population(new Culture("malay"), Optional.empty(), Optional.of("slaves")),
+                    11_000),
             ImmutableSet.of());
     var regionState2 =
         new RegionState(
@@ -184,10 +184,10 @@ final class StateWriterTest {
                 null,
                 null),
             ImmutableSet.of(),
-            ImmutableSet.of(
-                new Population(new Culture("malay"), 209_000, Optional.empty(), Optional.empty()),
-                new Population(
-                    new Culture("javan"), 5_400, Optional.of("animist"), Optional.of("slaves"))),
+            ImmutableMap.of(
+                new Population(new Culture("malay"), Optional.empty(), Optional.empty()), 209_000,
+                new Population(new Culture("javan"), Optional.of("animist"), Optional.of("slaves")),
+                    5_400),
             ImmutableSet.of());
 
     var strings = StateWriter.serializeHistoryPops(ImmutableSet.of(regionState1, regionState2));
@@ -267,7 +267,7 @@ final class StateWriterTest {
                 null,
                 null),
             ImmutableSet.of(),
-            ImmutableSet.of(),
+            ImmutableMap.of(),
             ImmutableSet.of(
                 new StateBuilding(
                     new Building("building_fishing_wharf", null, null),
@@ -303,7 +303,7 @@ final class StateWriterTest {
                 null,
                 null),
             ImmutableSet.of(),
-            ImmutableSet.of(),
+            ImmutableMap.of(),
             ImmutableSet.of(
                 new StateBuilding(
                     new Building("building_barracks", null, null),
