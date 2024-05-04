@@ -3,7 +3,7 @@ package lv.kitn.generator;
 import java.util.Optional;
 
 public record DiscoverableResource(
-    BuildingGroup type,
-    Optional<BuildingGroup> depletedType,
+    String type,
+    Optional<String> depletedType,
     Integer undiscoveredAmount,
     Optional<Integer> discoveredAmount) {}

@@ -459,20 +459,19 @@ region_indonesia = {
                 WOOD, "xCAB9F2"),
             35,
             ImmutableSet.of(
-                new BuildingGroup("bg_rice_farms"),
-                new BuildingGroup("bg_livestock_ranches"),
-                new BuildingGroup("bg_coffee_plantations"),
-                new BuildingGroup("bg_tea_plantations"),
-                new BuildingGroup("bg_sugar_plantations"),
-                new BuildingGroup("bg_banana_plantations")),
+                "bg_rice_farms",
+                "bg_livestock_ranches",
+                "bg_coffee_plantations",
+                "bg_tea_plantations",
+                "bg_sugar_plantations",
+                "bg_banana_plantations"),
             ImmutableMap.of(
-                new BuildingGroup("bg_coal_mining"), 32,
-                new BuildingGroup("bg_lead_mining"), 24,
-                new BuildingGroup("bg_logging"), 17,
-                new BuildingGroup("bg_fishing"), 10),
+                "bg_coal_mining", 32,
+                "bg_lead_mining", 24,
+                "bg_logging", 17,
+                "bg_fishing", 10),
             ImmutableSet.of(
-                new DiscoverableResource(
-                    new BuildingGroup("bg_rubber"), Optional.empty(), 40, Optional.empty())),
+                new DiscoverableResource("bg_rubber", Optional.empty(), 40, Optional.empty())),
             Optional.of(3052));
     var state2 =
         new State(
@@ -489,28 +488,22 @@ region_indonesia = {
                 PORT, "x4DD36E"),
             22,
             ImmutableSet.of(
-                new BuildingGroup("bg_rice_farms"),
-                new BuildingGroup("bg_livestock_ranches"),
-                new BuildingGroup("bg_coffee_plantations"),
-                new BuildingGroup("bg_dye_plantations"),
-                new BuildingGroup("bg_tea_plantations"),
-                new BuildingGroup("bg_tobacco_plantations"),
-                new BuildingGroup("bg_banana_plantations")),
+                "bg_rice_farms",
+                "bg_livestock_ranches",
+                "bg_coffee_plantations",
+                "bg_dye_plantations",
+                "bg_tea_plantations",
+                "bg_tobacco_plantations",
+                "bg_banana_plantations"),
             ImmutableMap.of(
-                new BuildingGroup("bg_lead_mining"), 30,
-                new BuildingGroup("bg_logging"), 17,
-                new BuildingGroup("bg_fishing"), 7),
+                "bg_lead_mining", 30,
+                "bg_logging", 17,
+                "bg_fishing", 7),
             ImmutableSet.of(
                 new DiscoverableResource(
-                    new BuildingGroup("bg_gold_fields"),
-                    Optional.of(new BuildingGroup("bg_gold_mining")),
-                    6,
-                    Optional.of(4)),
+                    "bg_gold_fields", Optional.of("bg_gold_mining"), 6, Optional.of(4)),
                 new DiscoverableResource(
-                    new BuildingGroup("bg_oil_extraction"),
-                    Optional.empty(),
-                    40,
-                    Optional.empty())),
+                    "bg_oil_extraction", Optional.empty(), 40, Optional.empty())),
             Optional.of(3052));
 
     var strings = StateWriter.serializeStateRegions(ImmutableSet.of(state1, state2));
@@ -581,7 +574,8 @@ STATE_WEST_BORNEO = {
             ImmutableSet.of(stateLocalization1, stateLocalization2));
 
     assertThat(String.join("\n", strings) + "\n")
-        .isEqualTo("""
+        .isEqualTo(
+            """
   STATE_MINSK:0 "Minsk"
   STATE_ALASKA:0 "Alaska"
 """);

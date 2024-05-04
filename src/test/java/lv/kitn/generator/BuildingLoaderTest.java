@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.io.StringReader;
+import java.util.Optional;
 import org.antlr.v4.runtime.CharStreams;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +57,7 @@ final class BuildingLoaderTest {
         .contains(
             new Building(
                 "building_subsistence_fishing_villages",
-                new BuildingGroup("bg_subsistence_agriculture"),
+                "bg_subsistence_agriculture",
                 ImmutableList.of(
                     new ProductionMethodGroup("pmg_base_building_subsistence_fishing_villages"),
                     new ProductionMethodGroup(
@@ -65,7 +66,7 @@ final class BuildingLoaderTest {
                     new ProductionMethodGroup("pmg_ownership_building_subsistence"))),
             new Building(
                 "building_subsistence_rice_paddies",
-                new BuildingGroup("bg_subsistence_agriculture"),
+                "bg_subsistence_agriculture",
                 ImmutableList.of(
                     new ProductionMethodGroup("pmg_base_building_subsistence_rice_paddies"),
                     new ProductionMethodGroup(
@@ -78,6 +79,27 @@ final class BuildingLoaderTest {
   void getBuildingGroups() throws Exception {
     var input =
         """
+            bg_agriculture = {
+                category = rural
+
+                land_usage = rural
+
+                lens = agriculture
+
+                economy_of_scale = yes
+
+                can_use_slaves = yes
+
+                urbanization = 5
+                infrastructure_usage_per_level = 1
+
+                should_auto_expand = {\s
+                    default_auto_expand_rule = yes
+                }
+
+                economy_of_scale_ai_factor = 1.5
+            }
+
             bg_rice_farms = {
                 parent_group = bg_agriculture
 
@@ -108,8 +130,9 @@ final class BuildingLoaderTest {
 
     assertThat(subsistenceBuildings)
         .contains(
-            new BuildingGroup("bg_rice_farms"),
-            new BuildingGroup("bg_maize_farms"),
-            new BuildingGroup("bg_millet_farms"));
+            new BuildingGroup("bg_agriculture", Optional.empty()),
+            new BuildingGroup("bg_rice_farms", Optional.of("bg_agriculture")),
+            new BuildingGroup("bg_maize_farms", Optional.of("bg_agriculture")),
+            new BuildingGroup("bg_millet_farms", Optional.of("bg_agriculture")));
   }
 }

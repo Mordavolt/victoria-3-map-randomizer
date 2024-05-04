@@ -1,3 +1,5 @@
 package lv.kitn.generator;
 
-public record BuildingGroup(String id) {}
+import java.util.Optional;
+
+public record BuildingGroup(String id, Optional<String> parent) {}

@@ -7,5 +7,5 @@ record ProvincePrefab(
     Terrain terrain,
     boolean coastal,
     ImmutableMap<Population, Integer> populations,
-    ImmutableMap<BuildingGroup, Integer> cappedResources,
-    ImmutableMap<BuildingGroup, Integer> discoverableResources) {}
+    ImmutableMap<String, Integer> cappedResources,
+    ImmutableMap<String, Integer> discoverableResources) {}

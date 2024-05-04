@@ -242,22 +242,17 @@ public class StateWriter {
                 building.getKey().name().toLowerCase(Locale.ROOT), building.getValue()));
       }
       result.add(format("  arable_land = %d", state.arableLand()));
-      result.add(
-          serializeListOfStrings(
-              "arable_resources",
-              state.arableResources().stream().map(BuildingGroup::id).collect(toImmutableSet()),
-              2));
+      result.add(serializeListOfStrings("arable_resources", state.arableResources(), 2));
       result.add("  capped_resources = {");
-      for (Map.Entry<BuildingGroup, Integer> building : state.cappedResources().entrySet()) {
-        result.add(format("    %s = %d", building.getKey().id(), building.getValue()));
+      for (Map.Entry<String, Integer> building : state.cappedResources().entrySet()) {
+        result.add(format("    %s = %d", building.getKey(), building.getValue()));
       }
       result.add("  }");
       for (DiscoverableResource discoverableResource : state.discoverableResources()) {
         result.add("  resource = {");
-        result.add(format("    type = \"%s\"", discoverableResource.type().id()));
+        result.add(format("    type = \"%s\"", discoverableResource.type()));
         discoverableResource
             .depletedType()
-            .map(BuildingGroup::id)
             .ifPresent(type -> result.add(format("    depleted_type = \"%s\"", type)));
         result.add(
             format("    undiscovered_amount = %d", discoverableResource.undiscoveredAmount()));

@@ -7,7 +7,6 @@ import static com.google.common.collect.ImmutableSetMultimap.flatteningToImmutab
 import static com.google.common.collect.ImmutableSetMultimap.toImmutableSetMultimap;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Map.Entry.comparingByValue;
-import static java.util.Map.entry;
 import static java.util.function.Function.identity;
 import static lv.kitn.generator.MapAdjacencyService.getGroups;
 import static lv.kitn.generator.Politics.TRADITIONAL;
@@ -18,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimaps;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -78,19 +78,27 @@ class RunGenerator {
             .filter(landProvinces::contains)
             .collect(toImmutableSet());
 
-    var provincePrefabs =
-        Maps.uniqueIndex(generateProvincePrefabs(provinces, coastalProvinces), ProvincePrefab::id);
-
-    //
-    //    var buildingGroups =
-    //        BuildingLoader.loadBuildingGroups(input.gameInstallationPath() +
-    // input.buildingGroups());
     var buildings =
         input.buildings().stream()
             .map(path -> input.gameInstallationPath() + path)
             .map(BuildingLoader::loadBuildings)
             .flatMap(Collection::stream)
-            .toList();
+            .collect(toImmutableSet());
+
+    var buildingGroups =
+        BuildingLoader.loadBuildingGroups(input.gameInstallationPath() + input.buildingGroups());
+
+    var cultures =
+        input.cultures().stream()
+            .map(path -> input.gameInstallationPath() + path)
+            .map(CultureLoader::loadCultures)
+            .flatMap(Collection::stream)
+            .collect(toImmutableSet());
+
+    var provincePrefabs =
+        Maps.uniqueIndex(
+            generateProvincePrefabs(provinces, coastalProvinces, cultures, buildingGroups, random),
+            ProvincePrefab::id);
 
     var groupedProvincesForCountries = getGroups(fullAdjacency, 200, random, 0.9);
     var countries = generateCountries(groupedProvincesForCountries, provincePrefabs, random);
@@ -139,7 +147,13 @@ class RunGenerator {
   }
 
   private static ImmutableSet<ProvincePrefab> generateProvincePrefabs(
-      ImmutableMap<String, Terrain> provinces, ImmutableSet<String> coastalProvinces) {
+      ImmutableMap<String, Terrain> provinces,
+      ImmutableSet<String> coastalProvinces,
+      ImmutableSet<Culture> cultures,
+      List<BuildingGroup> buildingGroups,
+      Random random) {
+    var cultureList = cultures.asList();
+    var groupedBuildingGroups = Multimaps.index(buildingGroups, BuildingGroup::parent);
     return provinces.entrySet().stream()
         .map(
             entry ->
@@ -148,10 +162,13 @@ class RunGenerator {
                     entry.getValue(),
                     coastalProvinces.contains(entry.getKey()),
                     ImmutableMap.of(
-                        new Population(new Culture("malay"), Optional.empty(), Optional.empty()),
-                        1_000),
-                    ImmutableMap.of(new BuildingGroup("bg_coal_mining"), 1),
-                    ImmutableMap.of(new BuildingGroup("bg_rubber"), 1)))
+                        new Population(
+                            cultureList.get(random.nextInt(cultureList.size())),
+                            Optional.empty(),
+                            random.nextInt(10) > 6 ? Optional.of("slaves") : Optional.empty()),
+                        random.nextInt(10_000) + 100),
+                    ImmutableMap.of("bg_coal_mining", 1),
+                    ImmutableMap.of("bg_rubber", 1)))
         .collect(toImmutableSet());
   }
 
@@ -221,7 +238,7 @@ class RunGenerator {
 
   private static ImmutableSet<State> generateStates(
       ImmutableSet<ImmutableSet<String>> groupedProvinces,
-      List<Building> buildings,
+      ImmutableSet<Building> buildings,
       ImmutableMap<String, ProvincePrefab> provincePrefabs,
       Random random) {
     LOG.debug("Generating states");
@@ -260,7 +277,7 @@ class RunGenerator {
               i,
               ImmutableList.of(new Culture("malay")),
               buildings.stream()
-                  .filter(b -> b.buildingGroup().id().equals("bg_subsistence_agriculture"))
+                  .filter(b -> b.buildingGroup().equals("bg_subsistence_agriculture"))
                   .findAny()
                   .orElseThrow(),
               provinces,
@@ -269,7 +286,7 @@ class RunGenerator {
               ImmutableSet.of(),
               ImmutableMap.of(),
               20,
-              ImmutableSet.of(new BuildingGroup("bg_rice_farms")),
+              ImmutableSet.of("bg_rice_farms"),
               cappedResources,
               discoverableResources,
               Optional.empty()));
@@ -408,7 +425,9 @@ class RunGenerator {
                 "/common/buildings/11_private_infrastructure.txt",
                 "/common/buildings/12_subsistence.txt",
                 "/common/buildings/13_construction.txt"),
-            "/common/building_groups/00_building_groups.txt"),
+            "/common/building_groups/00_building_groups.txt",
+            ImmutableList.of(
+                "/common/cultures/00_cultures.txt", "/common/cultures/00_additional_cultures.txt")),
         new FileProperties.Output(
             modPath,
             "/.metadata/metadata.json",

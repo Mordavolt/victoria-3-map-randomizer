@@ -3,6 +3,7 @@ package lv.kitn.pdxfile;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import lv.kitn.pdxfile.ParadoxFileParser.ValueContext;
 import org.antlr.v4.runtime.CharStream;
@@ -53,7 +54,11 @@ public class PdxFileReader {
     } else if (value.list() != null) {
       throw new UnsupportedOperationException("A list config not supported");
     } else if (value.constructor() != null) {
-      throw new UnsupportedOperationException("A constructor config not supported");
+      return ImmutableMap.of(
+          value.constructor().symbol().getText(),
+          value.constructor().array().value().stream()
+              .map(PdxFileReader::getValue)
+              .collect(toImmutableList()));
     }
     throw new IllegalStateException("This should never happen");
   }

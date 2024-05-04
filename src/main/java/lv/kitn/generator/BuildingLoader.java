@@ -4,6 +4,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lv.kitn.pdxfile.PdxFileReader;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -28,7 +29,7 @@ public class BuildingLoader {
                   (List<String>) buildingProperties.get("production_method_groups");
               return new Building(
                   id,
-                  new BuildingGroup(buildingGroup),
+                  buildingGroup,
                   productionMethodGroups.stream()
                       .map(ProductionMethodGroup::new)
                       .collect(toImmutableList()));
@@ -40,13 +41,18 @@ public class BuildingLoader {
     try {
       return getBuildingGroups(CharStreams.fromFileName(filePath));
     } catch (Exception e) {
-      throw new RuntimeException("Could not read lv.kitn.building groups from " + filePath, e);
+      throw new RuntimeException("Could not read building groups from " + filePath, e);
     }
   }
 
   static List<BuildingGroup> getBuildingGroups(CharStream charStream) {
-    return PdxFileReader.parseFileToDataMap(charStream).keySet().stream()
-        .map(BuildingGroup::new)
+    return PdxFileReader.parseFileToDataMap(charStream).entrySet().stream()
+        .map(
+            entry ->
+                new BuildingGroup(
+                    entry.getKey(),
+                    Optional.ofNullable(
+                        (String) ((Map<String, Object>) entry.getValue()).get("parent_group"))))
         .toList();
   }
 }

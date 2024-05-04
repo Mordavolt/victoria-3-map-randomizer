@@ -16,7 +16,7 @@ public record State(
     ImmutableSet<String> traits,
     ImmutableMap<BuildingType, String> buildings,
     Integer arableLand,
-    ImmutableSet<BuildingGroup> arableResources,
-    ImmutableMap<BuildingGroup, Integer> cappedResources,
+    ImmutableSet<String> arableResources,
+    ImmutableMap<String, Integer> cappedResources,
     ImmutableSet<DiscoverableResource> discoverableResources,
     Optional<Integer> navalExitId) {}
