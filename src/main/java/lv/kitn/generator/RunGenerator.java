@@ -8,6 +8,10 @@ import static com.google.common.collect.ImmutableSetMultimap.toImmutableSetMulti
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Map.Entry.comparingByValue;
 import static java.util.function.Function.identity;
+import static lv.kitn.generator.BuildingGroup.BG_COAL_MINING;
+import static lv.kitn.generator.BuildingGroup.BG_RICE_FARMS;
+import static lv.kitn.generator.BuildingGroup.BG_RUBBER;
+import static lv.kitn.generator.BuildingGroup.BG_SUBSISTENCE_AGRICULTURE;
 import static lv.kitn.generator.MapAdjacencyService.getGroups;
 import static lv.kitn.generator.Politics.TRADITIONAL;
 
@@ -17,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimaps;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -85,9 +88,6 @@ class RunGenerator {
             .flatMap(Collection::stream)
             .collect(toImmutableSet());
 
-    var buildingGroups =
-        BuildingLoader.loadBuildingGroups(input.gameInstallationPath() + input.buildingGroups());
-
     var cultures =
         input.cultures().stream()
             .map(path -> input.gameInstallationPath() + path)
@@ -97,7 +97,7 @@ class RunGenerator {
 
     var provincePrefabs =
         Maps.uniqueIndex(
-            generateProvincePrefabs(provinces, coastalProvinces, cultures, buildingGroups, random),
+            generateProvincePrefabs(provinces, coastalProvinces, cultures, random),
             ProvincePrefab::id);
 
     var groupedProvincesForCountries = getGroups(fullAdjacency, 200, random, 0.9);
@@ -150,10 +150,8 @@ class RunGenerator {
       ImmutableMap<String, Terrain> provinces,
       ImmutableSet<String> coastalProvinces,
       ImmutableSet<Culture> cultures,
-      List<BuildingGroup> buildingGroups,
       Random random) {
     var cultureList = cultures.asList();
-    var groupedBuildingGroups = Multimaps.index(buildingGroups, BuildingGroup::parent);
     return provinces.entrySet().stream()
         .map(
             entry ->
@@ -167,8 +165,8 @@ class RunGenerator {
                             Optional.empty(),
                             random.nextInt(10) > 6 ? Optional.of("slaves") : Optional.empty()),
                         random.nextInt(10_000) + 100),
-                    ImmutableMap.of("bg_coal_mining", 1),
-                    ImmutableMap.of("bg_rubber", 1)))
+                    ImmutableMap.of(BG_COAL_MINING, 1),
+                    ImmutableMap.of(BG_RUBBER, 1)))
         .collect(toImmutableSet());
   }
 
@@ -277,7 +275,7 @@ class RunGenerator {
               i,
               ImmutableList.of(new Culture("malay")),
               buildings.stream()
-                  .filter(b -> b.buildingGroup().equals("bg_subsistence_agriculture"))
+                  .filter(b -> b.buildingGroup() == BG_SUBSISTENCE_AGRICULTURE)
                   .findAny()
                   .orElseThrow(),
               provinces,
@@ -286,7 +284,7 @@ class RunGenerator {
               ImmutableSet.of(),
               ImmutableMap.of(),
               20,
-              ImmutableSet.of("bg_rice_farms"),
+              ImmutableSet.of(BG_RICE_FARMS),
               cappedResources,
               discoverableResources,
               Optional.empty()));

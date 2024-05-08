@@ -1,5 +1,21 @@
 package lv.kitn.generator;
 
+import static lv.kitn.generator.BuildingGroup.BG_BANANA_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_COAL_MINING;
+import static lv.kitn.generator.BuildingGroup.BG_COFFEE_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_DYE_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_FISHING;
+import static lv.kitn.generator.BuildingGroup.BG_GOLD_FIELDS;
+import static lv.kitn.generator.BuildingGroup.BG_GOLD_MINING;
+import static lv.kitn.generator.BuildingGroup.BG_LEAD_MINING;
+import static lv.kitn.generator.BuildingGroup.BG_LIVESTOCK_RANCHES;
+import static lv.kitn.generator.BuildingGroup.BG_LOGGING;
+import static lv.kitn.generator.BuildingGroup.BG_OIL_EXTRACTION;
+import static lv.kitn.generator.BuildingGroup.BG_RICE_FARMS;
+import static lv.kitn.generator.BuildingGroup.BG_RUBBER;
+import static lv.kitn.generator.BuildingGroup.BG_SUGAR_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_TEA_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_TOBACCO_PLANTATIONS;
 import static lv.kitn.generator.BuildingType.CITY;
 import static lv.kitn.generator.BuildingType.FARM;
 import static lv.kitn.generator.BuildingType.MINE;
@@ -459,19 +475,19 @@ region_indonesia = {
                 WOOD, "xCAB9F2"),
             35,
             ImmutableSet.of(
-                "bg_rice_farms",
-                "bg_livestock_ranches",
-                "bg_coffee_plantations",
-                "bg_tea_plantations",
-                "bg_sugar_plantations",
-                "bg_banana_plantations"),
+                BG_RICE_FARMS,
+                BG_LIVESTOCK_RANCHES,
+                BG_COFFEE_PLANTATIONS,
+                BG_TEA_PLANTATIONS,
+                BG_SUGAR_PLANTATIONS,
+                BG_BANANA_PLANTATIONS),
             ImmutableMap.of(
-                "bg_coal_mining", 32,
-                "bg_lead_mining", 24,
-                "bg_logging", 17,
-                "bg_fishing", 10),
+                BG_COAL_MINING, 32,
+                BG_LEAD_MINING, 24,
+                BG_LOGGING, 17,
+                BG_FISHING, 10),
             ImmutableSet.of(
-                new DiscoverableResource("bg_rubber", Optional.empty(), 40, Optional.empty())),
+                new DiscoverableResource(BG_RUBBER, Optional.empty(), 40, Optional.empty())),
             Optional.of(3052));
     var state2 =
         new State(
@@ -488,22 +504,22 @@ region_indonesia = {
                 PORT, "x4DD36E"),
             22,
             ImmutableSet.of(
-                "bg_rice_farms",
-                "bg_livestock_ranches",
-                "bg_coffee_plantations",
-                "bg_dye_plantations",
-                "bg_tea_plantations",
-                "bg_tobacco_plantations",
-                "bg_banana_plantations"),
+                BG_RICE_FARMS,
+                BG_LIVESTOCK_RANCHES,
+                BG_COFFEE_PLANTATIONS,
+                BG_DYE_PLANTATIONS,
+                BG_TEA_PLANTATIONS,
+                BG_TOBACCO_PLANTATIONS,
+                BG_BANANA_PLANTATIONS),
             ImmutableMap.of(
-                "bg_lead_mining", 30,
-                "bg_logging", 17,
-                "bg_fishing", 7),
+                BG_LEAD_MINING, 30,
+                BG_LOGGING, 17,
+                BG_FISHING, 7),
             ImmutableSet.of(
                 new DiscoverableResource(
-                    "bg_gold_fields", Optional.of("bg_gold_mining"), 6, Optional.of(4)),
+                    BG_GOLD_FIELDS, Optional.of(BG_GOLD_MINING), 6, Optional.of(4)),
                 new DiscoverableResource(
-                    "bg_oil_extraction", Optional.empty(), 40, Optional.empty())),
+                    BG_OIL_EXTRACTION, Optional.empty(), 40, Optional.empty())),
             Optional.of(3052));
 
     var strings = StateWriter.serializeStateRegions(ImmutableSet.of(state1, state2));
@@ -574,8 +590,7 @@ STATE_WEST_BORNEO = {
             ImmutableSet.of(stateLocalization1, stateLocalization2));
 
     assertThat(String.join("\n", strings) + "\n")
-        .isEqualTo(
-            """
+        .isEqualTo("""
   STATE_MINSK:0 "Minsk"
   STATE_ALASKA:0 "Alaska"
 """);

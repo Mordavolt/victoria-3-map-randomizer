@@ -1,10 +1,14 @@
 package lv.kitn.generator;
 
+import static lv.kitn.generator.BuildingGroup.BG_AGRICULTURE;
+import static lv.kitn.generator.BuildingGroup.BG_MAIZE_FARMS;
+import static lv.kitn.generator.BuildingGroup.BG_MILLET_FARMS;
+import static lv.kitn.generator.BuildingGroup.BG_RICE_FARMS;
+import static lv.kitn.generator.BuildingGroup.BG_SUBSISTENCE_AGRICULTURE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.io.StringReader;
-import java.util.Optional;
 import org.antlr.v4.runtime.CharStreams;
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +61,7 @@ final class BuildingLoaderTest {
         .contains(
             new Building(
                 "building_subsistence_fishing_villages",
-                "bg_subsistence_agriculture",
+                BG_SUBSISTENCE_AGRICULTURE,
                 ImmutableList.of(
                     new ProductionMethodGroup("pmg_base_building_subsistence_fishing_villages"),
                     new ProductionMethodGroup(
@@ -66,7 +70,7 @@ final class BuildingLoaderTest {
                     new ProductionMethodGroup("pmg_ownership_building_subsistence"))),
             new Building(
                 "building_subsistence_rice_paddies",
-                "bg_subsistence_agriculture",
+                BG_SUBSISTENCE_AGRICULTURE,
                 ImmutableList.of(
                     new ProductionMethodGroup("pmg_base_building_subsistence_rice_paddies"),
                     new ProductionMethodGroup(
@@ -129,10 +133,6 @@ final class BuildingLoaderTest {
     var subsistenceBuildings = BuildingLoader.getBuildingGroups(charStream);
 
     assertThat(subsistenceBuildings)
-        .contains(
-            new BuildingGroup("bg_agriculture", Optional.empty()),
-            new BuildingGroup("bg_rice_farms", Optional.of("bg_agriculture")),
-            new BuildingGroup("bg_maize_farms", Optional.of("bg_agriculture")),
-            new BuildingGroup("bg_millet_farms", Optional.of("bg_agriculture")));
+        .contains(BG_AGRICULTURE, BG_RICE_FARMS, BG_MAIZE_FARMS, BG_MILLET_FARMS);
   }
 }

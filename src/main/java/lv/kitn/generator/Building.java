@@ -4,5 +4,5 @@ import com.google.common.collect.ImmutableList;
 
 public record Building(
     String id,
-    String buildingGroup,
+    BuildingGroup buildingGroup,
     ImmutableList<ProductionMethodGroup> productionMethodGroups) {}

@@ -242,18 +242,34 @@ public class StateWriter {
                 building.getKey().name().toLowerCase(Locale.ROOT), building.getValue()));
       }
       result.add(format("  arable_land = %d", state.arableLand()));
-      result.add(serializeListOfStrings("arable_resources", state.arableResources(), 2));
+      result.add(
+          serializeListOfStrings(
+              "arable_resources",
+              state.arableResources().stream()
+                  .map(Enum::name)
+                  .map(String::toLowerCase)
+                  .collect(toImmutableSet()),
+              2));
       result.add("  capped_resources = {");
-      for (Map.Entry<String, Integer> building : state.cappedResources().entrySet()) {
-        result.add(format("    %s = %d", building.getKey(), building.getValue()));
+      for (Map.Entry<BuildingGroup, Integer> building : state.cappedResources().entrySet()) {
+        result.add(
+            format(
+                "    %s = %d",
+                building.getKey().name().toLowerCase(Locale.ROOT), building.getValue()));
       }
       result.add("  }");
       for (DiscoverableResource discoverableResource : state.discoverableResources()) {
         result.add("  resource = {");
-        result.add(format("    type = \"%s\"", discoverableResource.type()));
+        result.add(
+            format(
+                "    type = \"%s\"", discoverableResource.type().name().toLowerCase(Locale.ROOT)));
         discoverableResource
             .depletedType()
-            .ifPresent(type -> result.add(format("    depleted_type = \"%s\"", type)));
+            .ifPresent(
+                type ->
+                    result.add(
+                        format(
+                            "    depleted_type = \"%s\"", type.name().toLowerCase(Locale.ROOT))));
         result.add(
             format("    undiscovered_amount = %d", discoverableResource.undiscoveredAmount()));
         discoverableResource
