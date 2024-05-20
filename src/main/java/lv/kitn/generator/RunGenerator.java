@@ -5,14 +5,41 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.ImmutableSetMultimap.flatteningToImmutableSetMultimap;
 import static com.google.common.collect.ImmutableSetMultimap.toImmutableSetMultimap;
+import static com.google.common.collect.Sets.toImmutableEnumSet;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Map.Entry.comparingByValue;
 import static java.util.function.Function.identity;
+import static lv.kitn.generator.BuildingGroup.BG_BANANA_PLANTATIONS;
 import static lv.kitn.generator.BuildingGroup.BG_COAL_MINING;
+import static lv.kitn.generator.BuildingGroup.BG_COFFEE_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_COTTON_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_DYE_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_FISHING;
+import static lv.kitn.generator.BuildingGroup.BG_GOLD_FIELDS;
+import static lv.kitn.generator.BuildingGroup.BG_GOLD_MINING;
+import static lv.kitn.generator.BuildingGroup.BG_IRON_MINING;
+import static lv.kitn.generator.BuildingGroup.BG_LEAD_MINING;
+import static lv.kitn.generator.BuildingGroup.BG_LIVESTOCK_RANCHES;
+import static lv.kitn.generator.BuildingGroup.BG_LOGGING;
+import static lv.kitn.generator.BuildingGroup.BG_MAIZE_FARMS;
+import static lv.kitn.generator.BuildingGroup.BG_MILLET_FARMS;
+import static lv.kitn.generator.BuildingGroup.BG_OIL_EXTRACTION;
+import static lv.kitn.generator.BuildingGroup.BG_OPIUM_PLANTATIONS;
 import static lv.kitn.generator.BuildingGroup.BG_RICE_FARMS;
 import static lv.kitn.generator.BuildingGroup.BG_RUBBER;
+import static lv.kitn.generator.BuildingGroup.BG_RYE_FARMS;
+import static lv.kitn.generator.BuildingGroup.BG_SILK_PLANTATIONS;
 import static lv.kitn.generator.BuildingGroup.BG_SUBSISTENCE_AGRICULTURE;
+import static lv.kitn.generator.BuildingGroup.BG_SUGAR_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_SULFUR_MINING;
+import static lv.kitn.generator.BuildingGroup.BG_TEA_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_TOBACCO_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_VINEYARD_PLANTATIONS;
+import static lv.kitn.generator.BuildingGroup.BG_WHALING;
+import static lv.kitn.generator.BuildingGroup.BG_WHEAT_FARMS;
 import static lv.kitn.generator.MapAdjacencyService.getGroups;
+import static lv.kitn.generator.NameGenerator.generateAdjective;
+import static lv.kitn.generator.NameGenerator.generateName;
 import static lv.kitn.generator.Politics.TRADITIONAL;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -119,8 +146,10 @@ class RunGenerator {
     var stateAdjacency = calculateStateAdjacency(states, fullAdjacency);
     var strategicRegions = generateStrategicRegions(states, stateAdjacency, random);
 
-    var countryLocalizations = generateCountryLocalizations(countries);
-    var stateLocalizations = generateStateLocalizations(states);
+    var countryLocalizations = generateCountryLocalizations(countries, random);
+    var stateLocalizations = generateStateLocalizations(states, random);
+    var strategicRegionLocalizations =
+        generateStrategicRegionLocalizations(strategicRegions, random);
 
     //    var seaStates = ImmutableSet.<State>of();
     //    var seaStrategicRegions = ImmutableSet.<StrategicRegion>of();
@@ -134,6 +163,8 @@ class RunGenerator {
     StateWriter.writeHistoryBuildings(regionStates, output.modPath() + output.buildings());
     StateWriter.writeStrategicRegions(
         strategicRegions, output.modPath() + output.strategicRegions());
+    StateWriter.writeStrategicRegionLocalizations(
+        strategicRegionLocalizations, output.modPath() + output.strategicRegionLocalization());
     StateWriter.writeStateRegions(states, output.modPath() + output.stateRegions());
     StateWriter.writeStateLocalizations(
         stateLocalizations, output.modPath() + output.stateLocalization());
@@ -164,9 +195,7 @@ class RunGenerator {
                             cultureList.get(random.nextInt(cultureList.size())),
                             Optional.empty(),
                             random.nextInt(10) > 6 ? Optional.of("slaves") : Optional.empty()),
-                        random.nextInt(10_000) + 100),
-                    ImmutableMap.of(BG_COAL_MINING, 1),
-                    ImmutableMap.of(BG_RUBBER, 1)))
+                        random.nextInt(10_000) + 100)))
         .collect(toImmutableSet());
   }
 
@@ -243,32 +272,14 @@ class RunGenerator {
     var result = ImmutableSet.<State>builder();
     int i = 0;
     for (var provinces : groupedProvinces) {
-      var cappedResources =
+      var terrainToProvincePrefabs =
           provinces.stream()
               .map(provincePrefabs::get)
-              .map(ProvincePrefab::cappedResources)
-              .map(ImmutableMap::entrySet)
-              .flatMap(Collection::stream)
-              .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum));
-      var discoverableResources =
+              .collect(toImmutableSetMultimap(ProvincePrefab::terrain, identity()));
+      var coastalToProvincePrefabs =
           provinces.stream()
               .map(provincePrefabs::get)
-              .map(ProvincePrefab::discoverableResources)
-              .map(ImmutableMap::entrySet)
-              .flatMap(Collection::stream)
-              .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum))
-              .entrySet()
-              .stream()
-              .map(
-                  entry -> {
-                    var undiscovered = random.nextInt(entry.getValue() + 1);
-                    return new DiscoverableResource(
-                        entry.getKey(),
-                        Optional.empty(),
-                        undiscovered,
-                        Optional.of(entry.getValue() - undiscovered));
-                  })
-              .collect(toImmutableSet());
+              .collect(toImmutableSetMultimap(ProvincePrefab::coastal, identity()));
       result.add(
           new State(
               "STATE_" + i,
@@ -283,14 +294,397 @@ class RunGenerator {
               ImmutableSet.of(),
               ImmutableSet.of(),
               ImmutableMap.of(),
-              20,
-              ImmutableSet.of(BG_RICE_FARMS),
-              cappedResources,
-              discoverableResources,
+              calculateArableLand(terrainToProvincePrefabs),
+              generateArableResources(terrainToProvincePrefabs, random),
+              generateCappedResources(coastalToProvincePrefabs, random),
+              generateDiscoverableResources(terrainToProvincePrefabs, random),
               Optional.empty()));
       i++;
     }
     return result.build();
+  }
+
+  private static int calculateArableLand(
+      ImmutableSetMultimap<Terrain, ProvincePrefab> terrainToProvincePrefabs) {
+    return terrainToProvincePrefabs.asMap().entrySet().stream()
+        .mapToInt(
+            entry ->
+                (int)
+                        (entry.getValue().size()
+                            * switch (entry.getKey()) {
+                              case LAKES, OCEAN -> 0;
+                              case MOUNTAIN, TUNDRA, SNOW -> 0.2;
+                              case HILLS -> 0.4;
+                              case DESERT, FOREST, JUNGLE -> 0.6;
+                              case SAVANNA, WETLAND -> 0.8;
+                              case PLAINS -> 1;
+                            })
+                    + 1)
+        .sum();
+  }
+
+  private static ImmutableSet<BuildingGroup> generateArableResources(
+      ImmutableSetMultimap<Terrain, ProvincePrefab> terrainToProvincePrefabs, Random random) {
+    var totalProvinces = terrainToProvincePrefabs.size();
+    return terrainToProvincePrefabs.asMap().entrySet().stream()
+        .flatMap(
+            entry ->
+                getArableResourceChanceForTerrain(entry.getKey()).entrySet().stream()
+                    .filter(
+                        e ->
+                            rollBuldingChanceScaledToTerrainChanceInState(
+                                random, entry.getValue().size(), totalProvinces, e.getValue())))
+        .map(Map.Entry::getKey)
+        .collect(toImmutableEnumSet());
+  }
+
+  private static boolean rollBuldingChanceScaledToTerrainChanceInState(
+      Random random, double provincesOfThisTerrain, int totalProvinces, Double chanceOfBuilding) {
+    return random.nextDouble() < chanceOfBuilding * (provincesOfThisTerrain / totalProvinces);
+  }
+
+  private static ImmutableMap<BuildingGroup, Integer> generateCappedResources(
+      ImmutableSetMultimap<Boolean, ProvincePrefab> coastalToProvincePrefabs, Random random) {
+    var coastalProvinces = coastalToProvincePrefabs.get(true);
+    if (coastalProvinces.isEmpty()) return ImmutableMap.of();
+    var waterResources =
+        ImmutableMap.<BuildingGroup, Integer>builder().put(BG_FISHING, coastalProvinces.size());
+    if (random.nextDouble() < 0.3) {
+      waterResources.put(BG_WHALING, random.nextInt(coastalProvinces.size()) + 1);
+    }
+    return waterResources.build();
+  }
+
+  private static ImmutableSet<DiscoverableResource> generateDiscoverableResources(
+      ImmutableSetMultimap<Terrain, ProvincePrefab> terrainToProvincePrefabs, Random random) {
+    var totalProvinces = terrainToProvincePrefabs.size();
+    var discoverableResourcesWithoutGold =
+        terrainToProvincePrefabs.asMap().entrySet().stream()
+            .flatMap(
+                entry ->
+                    getDiscoverableNaturalResourceChanceForTerrain(entry.getKey())
+                        .entrySet()
+                        .stream()
+                        .filter(
+                            e ->
+                                rollBuldingChanceScaledToTerrainChanceInState(
+                                    random, entry.getValue().size(), totalProvinces, e.getValue())))
+            .map(Map.Entry::getKey)
+            .map(
+                buildingGroup ->
+                    new DiscoverableResource(
+                        buildingGroup,
+                        Optional.empty(),
+                        0,
+                        Optional.of(random.nextInt(totalProvinces) + 1)))
+            .collect(toImmutableSet());
+    var discoverableResources =
+        ImmutableSet.<DiscoverableResource>builder().addAll(discoverableResourcesWithoutGold);
+    if (random.nextDouble() < 0.03) {
+      discoverableResources.add(
+          new DiscoverableResource(
+              BG_GOLD_FIELDS, Optional.of(BG_GOLD_MINING), 0, Optional.of(random.nextInt(20) + 1)));
+    }
+    return discoverableResources.build();
+  }
+
+  private static ImmutableMap<BuildingGroup, Double> getArableResourceChanceForTerrain(
+      Terrain terrain) {
+    return switch (terrain) {
+      case SNOW, DESERT, TUNDRA ->
+          ImmutableMap.<BuildingGroup, Double>builder()
+              //  .put(BG_RYE_FARMS, 0.0)
+              //  .put(BG_WHEAT_FARMS, 0.0)
+              //  .put(BG_RICE_FARMS, 0.0)
+              //  .put(BG_MAIZE_FARMS, 0.0)
+              //  .put(BG_MILLET_FARMS, 0.0)
+              //  .put(BG_VINEYARD_PLANTATIONS, 0.0)
+              .put(BG_LIVESTOCK_RANCHES, 1.0)
+              //  .put(BG_COFFEE_PLANTATIONS, 0.0)
+              //  .put(BG_COTTON_PLANTATIONS, 0.0)
+              //  .put(BG_SILK_PLANTATIONS, 0.0)
+              //  .put(BG_DYE_PLANTATIONS, 0.0)
+              //  .put(BG_OPIUM_PLANTATIONS, 0.0)
+              //  .put(BG_TEA_PLANTATIONS, 0.0)
+              //  .put(BG_TOBACCO_PLANTATIONS, 0.0)
+              //  .put(BG_SUGAR_PLANTATIONS, 0.0)
+              //  .put(BG_BANANA_PLANTATIONS, 0.0)
+              .build();
+      case FOREST ->
+          ImmutableMap.<BuildingGroup, Double>builder()
+              //  .put(BG_RYE_FARMS, 0.0)
+              //  .put(BG_WHEAT_FARMS, 0.0)
+              //  .put(BG_RICE_FARMS, 0.0)
+              //  .put(BG_MAIZE_FARMS, 0.0)
+              //  .put(BG_MILLET_FARMS, 0.0)
+              //  .put(BG_VINEYARD_PLANTATIONS, 0.0)
+              .put(BG_LIVESTOCK_RANCHES, 0.6)
+              .put(BG_COFFEE_PLANTATIONS, 0.2)
+              .put(BG_COTTON_PLANTATIONS, 0.2)
+              //  .put(BG_SILK_PLANTATIONS, 0.0)
+              //  .put(BG_DYE_PLANTATIONS, 0.0)
+              .put(BG_OPIUM_PLANTATIONS, 0.2)
+              .put(BG_TEA_PLANTATIONS, 0.2)
+              .put(BG_TOBACCO_PLANTATIONS, 0.2)
+              .put(BG_SUGAR_PLANTATIONS, 0.2)
+              .put(BG_BANANA_PLANTATIONS, 0.2)
+              .build();
+      case HILLS ->
+          ImmutableMap.<BuildingGroup, Double>builder()
+              .put(BG_RYE_FARMS, 0.2)
+              .put(BG_WHEAT_FARMS, 0.2)
+              //  .put(BG_RICE_FARMS, 0.0)
+              .put(BG_MAIZE_FARMS, 0.2)
+              .put(BG_MILLET_FARMS, 0.2)
+              .put(BG_VINEYARD_PLANTATIONS, 0.2)
+              .put(BG_LIVESTOCK_RANCHES, 0.2)
+              .put(BG_COFFEE_PLANTATIONS, 0.2)
+              .put(BG_COTTON_PLANTATIONS, 0.2)
+              .put(BG_SILK_PLANTATIONS, 0.2)
+              .put(BG_DYE_PLANTATIONS, 0.2)
+              .put(BG_OPIUM_PLANTATIONS, 0.2)
+              .put(BG_TEA_PLANTATIONS, 0.2)
+              .put(BG_TOBACCO_PLANTATIONS, 0.2)
+              //  .put(BG_SUGAR_PLANTATIONS, 0.0)
+              //  .put(BG_BANANA_PLANTATIONS, 0.0)
+              .build();
+      case JUNGLE ->
+          ImmutableMap.<BuildingGroup, Double>builder()
+              //  .put(BG_RYE_FARMS, 0.0)
+              //  .put(BG_WHEAT_FARMS, 0.0)
+              //  .put(BG_RICE_FARMS, 0.0)
+              //  .put(BG_MAIZE_FARMS, 0.0)
+              //  .put(BG_MILLET_FARMS, 0.0)
+              //  .put(BG_VINEYARD_PLANTATIONS, 0.0)
+              .put(BG_LIVESTOCK_RANCHES, 0.7)
+              .put(BG_COFFEE_PLANTATIONS, 0.2)
+              .put(BG_COTTON_PLANTATIONS, 0.2)
+              //  .put(BG_SILK_PLANTATIONS, 0.0)
+              .put(BG_DYE_PLANTATIONS, 0.2)
+              .put(BG_OPIUM_PLANTATIONS, 0.2)
+              .put(BG_TEA_PLANTATIONS, 0.2)
+              .put(BG_TOBACCO_PLANTATIONS, 0.2)
+              .put(BG_SUGAR_PLANTATIONS, 0.2)
+              .put(BG_BANANA_PLANTATIONS, 0.2)
+              .build();
+      case LAKES, OCEAN ->
+          throw new IllegalStateException("Can't produce arable resources for water terrain");
+      case MOUNTAIN ->
+          ImmutableMap.<BuildingGroup, Double>builder()
+              .put(BG_RYE_FARMS, 0.4)
+              .put(BG_WHEAT_FARMS, 0.4)
+              //  .put(BG_RICE_FARMS, 0.0)
+              //  .put(BG_MAIZE_FARMS, 0.0)
+              //  .put(BG_MILLET_FARMS, 0.0)
+              //  .put(BG_VINEYARD_PLANTATIONS, 0.0)
+              .put(BG_LIVESTOCK_RANCHES, 0.4)
+              .put(BG_COFFEE_PLANTATIONS, 0.2)
+              .put(BG_COTTON_PLANTATIONS, 0.2)
+              //  .put(BG_SILK_PLANTATIONS, 0.0)
+              //  .put(BG_DYE_PLANTATIONS, 0.0)
+              //  .put(BG_OPIUM_PLANTATIONS, 0.0)
+              //  .put(BG_TEA_PLANTATIONS, 0.0)
+              //  .put(BG_TOBACCO_PLANTATIONS, 0.0)
+              //  .put(BG_SUGAR_PLANTATIONS, 0.0)
+              //  .put(BG_BANANA_PLANTATIONS, 0.0)
+              .build();
+      case PLAINS ->
+          ImmutableMap.<BuildingGroup, Double>builder()
+              .put(BG_RYE_FARMS, 0.2)
+              .put(BG_WHEAT_FARMS, 0.2)
+              .put(BG_RICE_FARMS, 0.2)
+              .put(BG_MAIZE_FARMS, 0.2)
+              .put(BG_MILLET_FARMS, 0.2)
+              .put(BG_VINEYARD_PLANTATIONS, 0.2)
+              .put(BG_LIVESTOCK_RANCHES, 0.2)
+              .put(BG_COFFEE_PLANTATIONS, 0.2)
+              .put(BG_COTTON_PLANTATIONS, 0.2)
+              .put(BG_SILK_PLANTATIONS, 0.2)
+              .put(BG_DYE_PLANTATIONS, 0.2)
+              .put(BG_OPIUM_PLANTATIONS, 0.2)
+              .put(BG_TEA_PLANTATIONS, 0.2)
+              .put(BG_TOBACCO_PLANTATIONS, 0.2)
+              .put(BG_SUGAR_PLANTATIONS, 0.2)
+              .put(BG_BANANA_PLANTATIONS, 0.2)
+              .build();
+      case SAVANNA ->
+          ImmutableMap.<BuildingGroup, Double>builder()
+              .put(BG_RYE_FARMS, 0.2)
+              .put(BG_WHEAT_FARMS, 0.2)
+              //  .put(BG_RICE_FARMS, 0.0)
+              .put(BG_MAIZE_FARMS, 0.2)
+              .put(BG_MILLET_FARMS, 0.2)
+              //  .put(BG_VINEYARD_PLANTATIONS, 0.0)
+              .put(BG_LIVESTOCK_RANCHES, 0.6)
+              .put(BG_COFFEE_PLANTATIONS, 0.2)
+              .put(BG_COTTON_PLANTATIONS, 0.2)
+              //  .put(BG_SILK_PLANTATIONS, 0.0)
+              .put(BG_DYE_PLANTATIONS, 0.2)
+              .put(BG_OPIUM_PLANTATIONS, 0.2)
+              //  .put(BG_TEA_PLANTATIONS, 0.0)
+              .put(BG_TOBACCO_PLANTATIONS, 0.2)
+              //  .put(BG_SUGAR_PLANTATIONS, 0.0)
+              //  .put(BG_BANANA_PLANTATIONS, 0.0)
+              .build();
+      case WETLAND ->
+          ImmutableMap.<BuildingGroup, Double>builder()
+              //  .put(BG_RYE_FARMS, 0.0)
+              //  .put(BG_WHEAT_FARMS, 0.0)
+              .put(BG_RICE_FARMS, 0.4)
+              //  .put(BG_MAIZE_FARMS, 0.0)
+              //  .put(BG_MILLET_FARMS, 0.0)
+              //  .put(BG_VINEYARD_PLANTATIONS, 0.0)
+              //  .put(BG_LIVESTOCK_RANCHES, 0.0)
+              .put(BG_COFFEE_PLANTATIONS, 0.2)
+              .put(BG_COTTON_PLANTATIONS, 0.2)
+              //  .put(BG_SILK_PLANTATIONS, 0.0)
+              .put(BG_DYE_PLANTATIONS, 0.2)
+              //  .put(BG_OPIUM_PLANTATIONS, 0.0)
+              //  .put(BG_TEA_PLANTATIONS, 0.0)
+              //  .put(BG_TOBACCO_PLANTATIONS, 0.0)
+              .put(BG_SUGAR_PLANTATIONS, 0.2)
+              .put(BG_BANANA_PLANTATIONS, 0.2)
+              .build();
+    };
+  }
+
+  private static ImmutableMap<BuildingGroup, Double> getDiscoverableNaturalResourceChanceForTerrain(
+      Terrain terrain) {
+    return switch (terrain) {
+      case DESERT ->
+          ImmutableMap.of(
+              BG_LOGGING,
+              0.0,
+              BG_COAL_MINING,
+              0.0,
+              BG_IRON_MINING,
+              0.0,
+              BG_LEAD_MINING,
+              0.0,
+              BG_SULFUR_MINING,
+              0.2,
+              BG_RUBBER,
+              0.0,
+              BG_OIL_EXTRACTION,
+              0.3);
+      case FOREST ->
+          ImmutableMap.of(
+              BG_LOGGING,
+              1.0,
+              BG_COAL_MINING,
+              0.2,
+              BG_IRON_MINING,
+              0.2,
+              BG_LEAD_MINING,
+              0.1,
+              BG_SULFUR_MINING,
+              0.1,
+              BG_RUBBER,
+              0.1,
+              BG_OIL_EXTRACTION,
+              0.1);
+      case HILLS ->
+          ImmutableMap.of(
+              BG_LOGGING, 0.6,
+              BG_COAL_MINING, 0.2,
+              BG_IRON_MINING, 0.2,
+              BG_LEAD_MINING, 0.1,
+              BG_SULFUR_MINING, 0.1,
+              BG_RUBBER, 0.1,
+              BG_OIL_EXTRACTION, 0.1);
+      case PLAINS ->
+          ImmutableMap.of(
+              BG_LOGGING, 0.0,
+              BG_COAL_MINING, 0.2,
+              BG_IRON_MINING, 0.2,
+              BG_LEAD_MINING, 0.1,
+              BG_SULFUR_MINING, 0.1,
+              BG_RUBBER, 0.1,
+              BG_OIL_EXTRACTION, 0.1);
+      case JUNGLE ->
+          ImmutableMap.of(
+              BG_LOGGING,
+              1.0,
+              BG_COAL_MINING,
+              0.2,
+              BG_IRON_MINING,
+              0.2,
+              BG_LEAD_MINING,
+              0.2,
+              BG_SULFUR_MINING,
+              0.1,
+              BG_RUBBER,
+              0.2,
+              BG_OIL_EXTRACTION,
+              0.1);
+      case LAKES, OCEAN -> {
+        throw new IllegalStateException("Can't produce natural resources for water terrain");
+      }
+      case MOUNTAIN ->
+          ImmutableMap.of(
+              BG_LOGGING,
+              0.4,
+              BG_COAL_MINING,
+              0.4,
+              BG_IRON_MINING,
+              0.4,
+              BG_LEAD_MINING,
+              0.3,
+              BG_SULFUR_MINING,
+              0.3,
+              BG_RUBBER,
+              0.0,
+              BG_OIL_EXTRACTION,
+              0.0);
+      case SAVANNA, WETLAND ->
+          ImmutableMap.of(
+              BG_LOGGING,
+              0.2,
+              BG_COAL_MINING,
+              0.2,
+              BG_IRON_MINING,
+              0.2,
+              BG_LEAD_MINING,
+              0.2,
+              BG_SULFUR_MINING,
+              0.1,
+              BG_RUBBER,
+              0.0,
+              BG_OIL_EXTRACTION,
+              0.1);
+      case TUNDRA ->
+          ImmutableMap.of(
+              BG_LOGGING,
+              0.0,
+              BG_COAL_MINING,
+              0.2,
+              BG_IRON_MINING,
+              0.2,
+              BG_LEAD_MINING,
+              0.2,
+              BG_SULFUR_MINING,
+              0.1,
+              BG_RUBBER,
+              0.0,
+              BG_OIL_EXTRACTION,
+              0.0);
+      case SNOW ->
+          ImmutableMap.of(
+              BG_LOGGING,
+              0.3,
+              BG_COAL_MINING,
+              0.2,
+              BG_IRON_MINING,
+              0.2,
+              BG_LEAD_MINING,
+              0.2,
+              BG_SULFUR_MINING,
+              0.1,
+              BG_RUBBER,
+              0.0,
+              BG_OIL_EXTRACTION,
+              0.0);
+    };
   }
 
   private static ImmutableSet<RegionState> generateRegionStates(
@@ -355,19 +749,30 @@ class RunGenerator {
   }
 
   private static ImmutableSet<CountryLocalization> generateCountryLocalizations(
-      ImmutableSet<Country> countries) {
+      ImmutableSet<Country> countries, Random random) {
     return countries.stream()
         .map(
-            country ->
-                new CountryLocalization(
-                    country.id(), "name_" + country.id(), "adj_" + country.id()))
+            country -> {
+              var countryName = generateName(random);
+              return new CountryLocalization(
+                  country.id(), countryName, generateAdjective(countryName));
+            })
         .collect(toImmutableSet());
   }
 
   private static ImmutableSet<StateLocalization> generateStateLocalizations(
-      ImmutableSet<State> states) {
+      ImmutableSet<State> states, Random random) {
     return states.stream()
-        .map(state -> new StateLocalization(state.variableName(), "name_" + state.variableName()))
+        .map(state -> new StateLocalization(state.variableName(), generateName(random)))
+        .collect(toImmutableSet());
+  }
+
+  private static ImmutableSet<StrategicRegionLocalization> generateStrategicRegionLocalizations(
+      ImmutableSet<StrategicRegion> strategicRegions, Random random) {
+    return strategicRegions.stream()
+        .map(
+            strategicRegion ->
+                new StrategicRegionLocalization(strategicRegion.name(), generateName(random)))
         .collect(toImmutableSet());
   }
 
@@ -454,6 +859,7 @@ class RunGenerator {
             "/localization/english/00_countries_l_english.yml",
             "/common/country_definitions/00_countries.txt",
             "/common/strategic_regions/00_strategic_regions.txt",
+            "/localization/english/00_strategic_regions_l_english.yml",
             "/map_data/state_regions/00_state_regions.txt",
             "/localization/english/map/00_states_l_english.yml"));
   }

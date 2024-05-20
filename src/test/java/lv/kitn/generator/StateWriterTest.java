@@ -595,4 +595,20 @@ STATE_WEST_BORNEO = {
   STATE_ALASKA:0 "Alaska"
 """);
   }
+
+  @Test
+  void serializeStrategicRegionLocalizations() throws Exception {
+    var strategicRegionLocalization1 = new StrategicRegionLocalization("region_england", "England");
+    var strategicRegionLocalization2 =
+        new StrategicRegionLocalization("region_north_sea_coast", "North Sea");
+    var strings =
+        StateWriter.serializeStrategicRegionLocalizations(
+            ImmutableSet.of(strategicRegionLocalization1, strategicRegionLocalization2));
+
+    assertThat(String.join("\n", strings) + "\n")
+        .isEqualTo("""
+  region_england:0 "England"
+  region_north_sea_coast:0 "North Sea"
+""");
+  }
 }

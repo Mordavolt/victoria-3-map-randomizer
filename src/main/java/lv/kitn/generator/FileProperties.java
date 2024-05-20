@@ -23,6 +23,7 @@ record FileProperties(Input input, Output output) {
       String countryLocalization,
       String countryDefinitions,
       String strategicRegions,
+      String strategicRegionLocalization,
       String stateRegions,
       String stateLocalization) {}
 }

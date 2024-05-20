@@ -318,6 +318,39 @@ public class StateWriter {
     return result;
   }
 
+  public static void writeStrategicRegionLocalizations(
+      ImmutableSet<StrategicRegionLocalization> strategicRegionLocalizations, String filePath) {
+    LOG.debug("Writing strategic region localizations to {}", filePath);
+    try {
+      new File(filePath).getParentFile().mkdirs();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, UTF_8));
+      writer.write('\ufeff');
+      writer.write("l_english:");
+      writer.newLine();
+      for (String string : serializeStrategicRegionLocalizations(strategicRegionLocalizations)) {
+        writer.write(string);
+        writer.newLine();
+      }
+      writer.newLine();
+      writer.close();
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Could not write strategic region localizations to " + filePath, e);
+    }
+  }
+
+  static List<String> serializeStrategicRegionLocalizations(
+      ImmutableSet<StrategicRegionLocalization> strategicRegionLocalizations) {
+    var result = new ArrayList<String>();
+    for (StrategicRegionLocalization strategicRegionLocalization : strategicRegionLocalizations) {
+      result.add(
+          format(
+              "  %s:0 \"%s\"",
+              strategicRegionLocalization.id(), strategicRegionLocalization.name()));
+    }
+    return result;
+  }
+
   private static String serializeListOfStrings(
       String key, ImmutableSet<String> strings, int indentation) {
     StringBuilder result = new StringBuilder();
