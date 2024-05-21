@@ -10,7 +10,8 @@ record FileProperties(Input input, Output output) {
       String adjacencies,
       List<String> buildings,
       String buildingGroups,
-      List<String> cultures) {}
+      List<String> cultures,
+      String seas) {}
 
   record Output(
       String modPath,

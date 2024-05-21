@@ -54,6 +54,7 @@ import java.io.FileWriter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import org.slf4j.Logger;
@@ -122,6 +123,10 @@ class RunGenerator {
             .flatMap(Collection::stream)
             .collect(toImmutableSet());
 
+    var seas =
+        Maps.uniqueIndex(
+            SeaLoader.loadSeas(input.gameInstallationPath() + input.seas()), Sea::province);
+
     var provincePrefabs =
         Maps.uniqueIndex(
             generateProvincePrefabs(provinces, coastalProvinces, cultures, random),
@@ -131,7 +136,9 @@ class RunGenerator {
     var countries = generateCountries(groupedProvincesForCountries, provincePrefabs, random);
 
     var groupedProvincesForStates = getGroups(fullAdjacency, 100, random, 0.5);
-    var states = generateStates(groupedProvincesForStates, buildings, provincePrefabs, random);
+    var states =
+        generateStates(
+            groupedProvincesForStates, buildings, provincePrefabs, random, seas, adjacencyMatrix);
 
     var provinceToState =
         states.stream()
@@ -150,9 +157,6 @@ class RunGenerator {
     var stateLocalizations = generateStateLocalizations(states, random);
     var strategicRegionLocalizations =
         generateStrategicRegionLocalizations(strategicRegions, random);
-
-    //    var seaStates = ImmutableSet.<State>of();
-    //    var seaStrategicRegions = ImmutableSet.<StrategicRegion>of();
 
     var output = properties.output();
 
@@ -267,7 +271,9 @@ class RunGenerator {
       ImmutableSet<ImmutableSet<String>> groupedProvinces,
       ImmutableSet<Building> buildings,
       ImmutableMap<String, ProvincePrefab> provincePrefabs,
-      Random random) {
+      Random random,
+      ImmutableMap<String, Sea> seas,
+      ImmutableSetMultimap<String, String> adjacencyMatrix) {
     LOG.debug("Generating states");
     var result = ImmutableSet.<State>builder();
     int i = 0;
@@ -298,7 +304,13 @@ class RunGenerator {
               generateArableResources(terrainToProvincePrefabs, random),
               generateCappedResources(coastalToProvincePrefabs, random),
               generateDiscoverableResources(terrainToProvincePrefabs, random),
-              Optional.empty()));
+              provinces.stream()
+                  .map(adjacencyMatrix::get)
+                  .flatMap(Collection::stream)
+                  .map(seas::get)
+                  .filter(Objects::nonNull)
+                  .map(Sea::id)
+                  .findAny()));
       i++;
     }
     return result.build();
@@ -370,20 +382,34 @@ class RunGenerator {
                                 rollBuldingChanceScaledToTerrainChanceInState(
                                     random, entry.getValue().size(), totalProvinces, e.getValue())))
             .map(Map.Entry::getKey)
+            .distinct()
             .map(
-                buildingGroup ->
-                    new DiscoverableResource(
-                        buildingGroup,
-                        Optional.empty(),
-                        0,
-                        Optional.of(random.nextInt(totalProvinces) + 1)))
+                buildingGroup -> {
+                  var resourceCount = random.nextInt(totalProvinces) + 1;
+                  var discovered =
+                      switch (buildingGroup) {
+                        case BG_LOGGING -> resourceCount;
+                        case BG_RUBBER, BG_OIL_EXTRACTION -> 0;
+                        default -> random.nextInt(resourceCount);
+                      };
+                  return new DiscoverableResource(
+                      buildingGroup,
+                      Optional.empty(),
+                      resourceCount - discovered,
+                      Optional.of(discovered));
+                })
             .collect(toImmutableSet());
     var discoverableResources =
         ImmutableSet.<DiscoverableResource>builder().addAll(discoverableResourcesWithoutGold);
     if (random.nextDouble() < 0.03) {
+      var goldMineCount = random.nextInt(20) + 1;
+      var discovered = random.nextInt(goldMineCount);
       discoverableResources.add(
           new DiscoverableResource(
-              BG_GOLD_FIELDS, Optional.of(BG_GOLD_MINING), 0, Optional.of(random.nextInt(20) + 1)));
+              BG_GOLD_FIELDS,
+              Optional.of(BG_GOLD_MINING),
+              goldMineCount - discovered,
+              Optional.of(discovered)));
     }
     return discoverableResources.build();
   }
@@ -830,7 +856,8 @@ class RunGenerator {
                 "/common/buildings/13_construction.txt"),
             "/common/building_groups/00_building_groups.txt",
             ImmutableList.of(
-                "/common/cultures/00_cultures.txt", "/common/cultures/00_additional_cultures.txt")),
+                "/common/cultures/00_cultures.txt", "/common/cultures/00_additional_cultures.txt"),
+            "/map_data/state_regions/99_seas.txt"),
         new FileProperties.Output(
             modPath,
             "/.metadata/metadata.json",
@@ -851,7 +878,8 @@ class RunGenerator {
                 "/map_data/state_regions/13_australasia.txt",
                 "/map_data/state_regions/14_siberia.txt",
                 "/common/journal_entries/01_alaska.txt",
-                "/common/buildings/08_monuments.txt"),
+                "/common/buildings/08_monuments.txt",
+                "common/scripted_triggers/00_scripted_triggers.txt"),
             "/common/history/states/00_states.txt",
             "/common/history/pops/00_pops.txt",
             "/common/history/buildings/00_buildings.txt",
