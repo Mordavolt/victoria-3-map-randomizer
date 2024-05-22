@@ -21,6 +21,8 @@ import static lv.kitn.generator.BuildingType.FARM;
 import static lv.kitn.generator.BuildingType.MINE;
 import static lv.kitn.generator.BuildingType.PORT;
 import static lv.kitn.generator.BuildingType.WOOD;
+import static lv.kitn.generator.Culture.JAVAN;
+import static lv.kitn.generator.Culture.MALAY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
@@ -37,7 +39,7 @@ final class StateWriterTest {
         new State(
             "STATE_MALAYA",
             null,
-            ImmutableList.of(new Culture("malay")),
+            ImmutableSet.of(MALAY),
             null,
             null,
             null,
@@ -170,9 +172,8 @@ final class StateWriterTest {
                 null),
             ImmutableSet.of(),
             ImmutableMap.of(
-                new Population(new Culture("malay"), Optional.empty(), Optional.empty()), 399_600,
-                new Population(new Culture("malay"), Optional.empty(), Optional.of("slaves")),
-                    11_000),
+                new Population(MALAY, Optional.empty(), Optional.empty()), 399_600,
+                new Population(MALAY, Optional.empty(), Optional.of("slaves")), 11_000),
             ImmutableSet.of());
     var regionState2 =
         new RegionState(
@@ -201,9 +202,8 @@ final class StateWriterTest {
                 null),
             ImmutableSet.of(),
             ImmutableMap.of(
-                new Population(new Culture("malay"), Optional.empty(), Optional.empty()), 209_000,
-                new Population(new Culture("javan"), Optional.of("animist"), Optional.of("slaves")),
-                    5_400),
+                new Population(MALAY, Optional.empty(), Optional.empty()), 209_000,
+                new Population(JAVAN, Optional.of("animist"), Optional.of("slaves")), 5_400),
             ImmutableSet.of());
 
     var strings = StateWriter.serializeHistoryPops(ImmutableSet.of(regionState1, regionState2));

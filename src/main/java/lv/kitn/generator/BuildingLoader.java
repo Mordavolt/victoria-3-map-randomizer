@@ -38,19 +38,4 @@ public class BuildingLoader {
             })
         .toList();
   }
-
-  public static List<BuildingGroup> loadBuildingGroups(String filePath) {
-    try {
-      return getBuildingGroups(CharStreams.fromFileName(filePath));
-    } catch (Exception e) {
-      throw new RuntimeException("Could not read building groups from " + filePath, e);
-    }
-  }
-
-  static List<BuildingGroup> getBuildingGroups(CharStream charStream) {
-    return PdxFileReader.parseFileToDataMap(charStream).keySet().stream()
-        .map(s -> s.toUpperCase(Locale.ROOT))
-        .map(BuildingGroup::valueOf)
-        .toList();
-  }
 }

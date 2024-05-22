@@ -140,7 +140,9 @@ public class CountryWriter {
       result.add(
           serializeListOfStrings(
               "cultures",
-              country.cultures().stream().map(Culture::id).collect(toImmutableSet()),
+              country.cultures().stream()
+                  .map(culture -> culture.name().toLowerCase(Locale.ROOT))
+                  .collect(toImmutableSet()),
               2));
       result.add(format("  capital = %s", country.capitalState()));
       result.add("}");

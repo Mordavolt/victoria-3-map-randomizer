@@ -1,9 +1,5 @@
 package lv.kitn.generator;
 
-import static lv.kitn.generator.BuildingGroup.BG_AGRICULTURE;
-import static lv.kitn.generator.BuildingGroup.BG_MAIZE_FARMS;
-import static lv.kitn.generator.BuildingGroup.BG_MILLET_FARMS;
-import static lv.kitn.generator.BuildingGroup.BG_RICE_FARMS;
 import static lv.kitn.generator.BuildingGroup.BG_SUBSISTENCE_AGRICULTURE;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,62 +73,5 @@ final class BuildingLoaderTest {
                         "pmg_home_workshops_building_subsistence_rice_paddies"),
                     new ProductionMethodGroup("pmg_serfdom_building_subsistence_rice_paddies"),
                     new ProductionMethodGroup("pmg_ownership_building_subsistence"))));
-  }
-
-  @Test
-  void getBuildingGroups() throws Exception {
-    var input =
-        """
-            bg_agriculture = {
-                category = rural
-
-                land_usage = rural
-
-                lens = agriculture
-
-                economy_of_scale = yes
-
-                can_use_slaves = yes
-
-                urbanization = 5
-                infrastructure_usage_per_level = 1
-
-                should_auto_expand = {\s
-                    default_auto_expand_rule = yes
-                }
-
-                economy_of_scale_ai_factor = 1.5
-            }
-
-            bg_rice_farms = {
-                parent_group = bg_agriculture
-
-                default_building = building_rice_farm
-
-                cash_reserves_max = 25000
-            }
-
-            bg_maize_farms = {
-                parent_group = bg_agriculture
-
-                default_building = building_maize_farm
-
-                cash_reserves_max = 25000
-            }
-
-            bg_millet_farms = {
-                parent_group = bg_agriculture
-
-                default_building = building_millet_farm
-
-                cash_reserves_max = 25000
-            }
-            """;
-
-    var charStream = CharStreams.fromReader(new StringReader(input));
-    var subsistenceBuildings = BuildingLoader.getBuildingGroups(charStream);
-
-    assertThat(subsistenceBuildings)
-        .contains(BG_AGRICULTURE, BG_RICE_FARMS, BG_MAIZE_FARMS, BG_MILLET_FARMS);
   }
 }

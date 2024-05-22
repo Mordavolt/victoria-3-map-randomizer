@@ -4,6 +4,10 @@ import static lv.kitn.generator.CountryTier.EMPIRE;
 import static lv.kitn.generator.CountryTier.PRINCIPALITY;
 import static lv.kitn.generator.CountryType.DECENTRALIZED;
 import static lv.kitn.generator.CountryType.RECOGNIZED;
+import static lv.kitn.generator.Culture.BRITISH;
+import static lv.kitn.generator.Culture.NORTH_GERMAN;
+import static lv.kitn.generator.Culture.SCOTTISH;
+import static lv.kitn.generator.Culture.SOUTH_GERMAN;
 import static lv.kitn.generator.Politics.CONSERVATIVE;
 import static lv.kitn.generator.Politics.TRADITIONAL;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -162,7 +166,7 @@ final class CountryWriterTest {
             new Color(0.9, 0.101, 0.1),
             RECOGNIZED,
             EMPIRE,
-            ImmutableSet.of(new Culture("north_german"), new Culture("south_german")),
+            ImmutableSet.of(NORTH_GERMAN, SOUTH_GERMAN),
             "STATE_BRANDENBURG",
             null);
     var country2 =
@@ -185,7 +189,7 @@ final class CountryWriterTest {
             new Color(0.99, 0.7, 0.9),
             DECENTRALIZED,
             PRINCIPALITY,
-            ImmutableSet.of(new Culture("british"), new Culture("scottish")),
+            ImmutableSet.of(BRITISH, SCOTTISH),
             "STATE_HOME_COUNTIES",
             null);
     var strings = CountryWriter.serializeCountryDefinitions(ImmutableSet.of(country1, country2));

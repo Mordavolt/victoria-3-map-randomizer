@@ -53,7 +53,8 @@ public class StateWriter {
         result.add("    }");
       }
       for (Culture homelandCulture : entry.getKey().homelandCultures()) {
-        result.add(format("    add_homeland = cu:%s", homelandCulture.id()));
+        result.add(
+            format("    add_homeland = cu:%s", homelandCulture.name().toLowerCase(Locale.ROOT)));
       }
       result.add("  }");
     }
@@ -94,7 +95,10 @@ public class StateWriter {
               .getKey()
               .popType()
               .ifPresent(type -> result.add(format("        pop_type = %s", type)));
-          result.add(format("        culture = %s", population.getKey().culture().id()));
+          result.add(
+              format(
+                  "        culture = %s",
+                  population.getKey().culture().name().toLowerCase(Locale.ROOT)));
           population
               .getKey()
               .religion()
