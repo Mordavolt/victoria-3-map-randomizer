@@ -38,6 +38,7 @@ import static lv.kitn.generator.BuildingGroup.BG_TOBACCO_PLANTATIONS;
 import static lv.kitn.generator.BuildingGroup.BG_VINEYARD_PLANTATIONS;
 import static lv.kitn.generator.BuildingGroup.BG_WHALING;
 import static lv.kitn.generator.BuildingGroup.BG_WHEAT_FARMS;
+import static lv.kitn.generator.Culture.Heritage.EUROPEAN_HERITAGE;
 import static lv.kitn.generator.MapAdjacencyService.getGroups;
 import static lv.kitn.generator.NameGenerator.generateAdjective;
 import static lv.kitn.generator.NameGenerator.generateName;
@@ -172,12 +173,12 @@ class RunGenerator {
       ImmutableSetMultimap<String, String> fullAdjacency, Random random) {
     var heritageToCultures =
         Multimaps.index(Arrays.asList(Culture.values()), (Culture c) -> c.heritage);
-    var currentHeritage = Heritage.values()[random.nextInt(Heritage.values().length)];
+    var currentHeritage = EUROPEAN_HERITAGE;
     var provinceToCultures = ImmutableSetMultimap.<String, Culture>builder();
     for (int i = 0; i < 2; i++) {
-      var groups = getGroups(fullAdjacency, 400, random, 0.5);
+      var groups = getGroups(fullAdjacency, 500, random, 0.5);
       for (var group : groups) {
-        if (random.nextDouble() < 0.1) {
+        if (random.nextDouble() < 0.05) {
           currentHeritage = Heritage.values()[random.nextInt(Heritage.values().length)];
         }
         var possibleCultures = heritageToCultures.get(currentHeritage);
