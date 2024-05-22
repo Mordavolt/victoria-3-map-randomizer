@@ -4,17 +4,16 @@ import java.util.Random;
 
 public class NameGenerator {
   private static final String[] PREFIXES = {
-    "Ar", "Ba", "Ca", "De", "El", "Fa", "Ga", "Ha", "Il", "Ja", "Ka", "La", "Ma", "Na", "O", "Pa",
-    "Qua", "Ra", "Sa", "Ta", "U", "Va", "Wa", "Xa", "Ya", "Za", "Ark", "Bel", "Cher", "Dar", "Eas",
-    "Far", "Gor", "Hel", "Ish", "Jen", "Kor", "Len", "Mik", "Nor", "Orl", "Pet", "Qua", "Riv",
-    "Sar", "Tver", "Ufa", "Vla", "Wel", "Xan", "Yar", "Zan"
+    "Ar", "Ark", "Ba", "Bel", "Ca", "Cher", "Dar", "De", "Eas", "El", "Fa", "Far", "Ga", "Gor",
+    "Ha", "Hel", "Il", "Ish", "Ja", "Jen", "Ka", "Kor", "La", "Len", "Ma", "Mik", "Na", "Nor", "O",
+    "Orl", "Pa", "Pet", "Qua", "Ra", "Riv", "Sa", "Sar", "Ta", "Tver", "U", "Ufa", "Va", "Vla",
+    "Wa", "Wel", "Xa", "Xan", "Ya", "Yar", "Za", "Zan"
   };
 
   private static final String[] SUFFIXES = {
-    "land", "nia", "ria", "stan", "dor", "lia", "tia", "via", "gia", "ica", "ara", "ora", "ona",
-    "ria", "sia", "tan", "qua", "da", "na", "la", "pa", "ma", "tha", "land", "ania", "burg", "ford",
-    "shire", "ton", "ville", "grad", "stan", "ka", "nia", "lia", "sia", "va", "ra", "ta", "qua",
-    "na", "la", "pa", "ma", "tha"
+    "ania", "ara", "burg", "da", "dor", "ford", "gia", "grad", "ica", "ka", "la", "land", "lia",
+    "ma", "na", "nia", "ona", "ora", "pa", "qua", "ra", "ria", "shire", "sia", "stan", "ta", "tan",
+    "tha", "tha", "tia", "ton", "va", "via", "ville"
   };
 
   public static String generateName(Random random) {
