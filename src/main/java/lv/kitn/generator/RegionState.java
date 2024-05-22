@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 
 public record RegionState(
     State state,
-    Country country,
+    CountryHistory countryHistory,
     ImmutableSet<String> ownedProvinces,
     ImmutableMap<Population, Integer> populations,
     ImmutableSet<StateBuilding> buildings) {}

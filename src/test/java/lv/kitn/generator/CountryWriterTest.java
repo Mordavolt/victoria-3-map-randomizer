@@ -23,7 +23,7 @@ final class CountryWriterTest {
   @Test
   void serializeHistoryStates() throws Exception {
     var country1 =
-        new Country(
+        new CountryHistory(
             "AAA",
             ImmutableSet.of(
                 new Law("law_appointed_bureaucrats"),
@@ -52,14 +52,9 @@ final class CountryWriterTest {
             ImmutableMap.of("east_indies_revolt_var", 0),
             ImmutableSet.of("je_consolidate_colonial_rule"),
             ImmutableMap.of("brazilian_slave_trade_modifier", 600),
-            null,
-            null,
-            null,
-            null,
-            null,
             null);
     var country2 =
-        new Country(
+        new CountryHistory(
             "BER",
             ImmutableSet.of(new Law("law_serfdom"), new Law("law_debt_slavery")),
             ImmutableSet.of(),
@@ -75,11 +70,6 @@ final class CountryWriterTest {
             ImmutableMap.of(),
             ImmutableSet.of(),
             ImmutableMap.of(),
-            null,
-            null,
-            null,
-            null,
-            null,
             null);
     var strings = CountryWriter.serializeHistoryCountries(ImmutableSet.of(country1, country2));
 
@@ -147,51 +137,21 @@ final class CountryWriterTest {
   @Test
   void serializeCountryDefinitions() throws Exception {
     var country1 =
-        new Country(
+        new CountryDefinition(
             "GER",
-            null,
-            null,
-            null,
-            TRADITIONAL,
-            1,
-            Optional.empty(),
-            null,
-            1,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
             new Color(0.9, 0.101, 0.1),
             RECOGNIZED,
             EMPIRE,
             ImmutableSet.of(NORTH_GERMAN, SOUTH_GERMAN),
-            "STATE_BRANDENBURG",
-            null);
+            "STATE_BRANDENBURG");
     var country2 =
-        new Country(
+        new CountryDefinition(
             "GBR",
-            null,
-            null,
-            null,
-            TRADITIONAL,
-            1,
-            Optional.empty(),
-            null,
-            1,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
             new Color(0.99, 0.7, 0.9),
             DECENTRALIZED,
             PRINCIPALITY,
             ImmutableSet.of(BRITISH, SCOTTISH),
-            "STATE_HOME_COUNTIES",
-            null);
+            "STATE_HOME_COUNTIES");
     var strings = CountryWriter.serializeCountryDefinitions(ImmutableSet.of(country1, country2));
 
     assertThat(String.join("\n", strings) + "\n")

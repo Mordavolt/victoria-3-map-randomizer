@@ -54,7 +54,7 @@ final class StateWriterTest {
     var regionState1 =
         new RegionState(
             state,
-            new Country(
+            new CountryHistory(
                 "JOH",
                 null,
                 null,
@@ -70,11 +70,6 @@ final class StateWriterTest {
                 null,
                 null,
                 null,
-                null,
-                null,
-                null,
-                null,
-                null,
                 null),
             ImmutableSet.of("x76546D", "x0080B0"),
             ImmutableMap.of(),
@@ -82,7 +77,7 @@ final class StateWriterTest {
     var regionState2 =
         new RegionState(
             state,
-            new Country(
+            new CountryHistory(
                 "SIA",
                 null,
                 null,
@@ -90,11 +85,6 @@ final class StateWriterTest {
                 null,
                 null,
                 Optional.empty(),
-                null,
-                null,
-                null,
-                null,
-                null,
                 null,
                 null,
                 null,
@@ -148,7 +138,7 @@ final class StateWriterTest {
     var regionState1 =
         new RegionState(
             state,
-            new Country(
+            new CountryHistory(
                 "JOH",
                 null,
                 null,
@@ -156,11 +146,6 @@ final class StateWriterTest {
                 null,
                 null,
                 Optional.empty(),
-                null,
-                null,
-                null,
-                null,
-                null,
                 null,
                 null,
                 null,
@@ -178,7 +163,7 @@ final class StateWriterTest {
     var regionState2 =
         new RegionState(
             state,
-            new Country(
+            new CountryHistory(
                 "SEL",
                 null,
                 null,
@@ -186,11 +171,6 @@ final class StateWriterTest {
                 null,
                 null,
                 Optional.empty(),
-                null,
-                null,
-                null,
-                null,
-                null,
                 null,
                 null,
                 null,
@@ -260,7 +240,7 @@ final class StateWriterTest {
     var regionState1 =
         new RegionState(
             state,
-            new Country(
+            new CountryHistory(
                 "JOH",
                 null,
                 null,
@@ -268,11 +248,6 @@ final class StateWriterTest {
                 null,
                 null,
                 Optional.empty(),
-                null,
-                null,
-                null,
-                null,
-                null,
                 null,
                 null,
                 null,
@@ -296,7 +271,7 @@ final class StateWriterTest {
     var regionState2 =
         new RegionState(
             state,
-            new Country(
+            new CountryHistory(
                 "SEL",
                 null,
                 null,
@@ -304,11 +279,6 @@ final class StateWriterTest {
                 null,
                 null,
                 Optional.empty(),
-                null,
-                null,
-                null,
-                null,
-                null,
                 null,
                 null,
                 null,

@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory;
 public class CountryWriter {
   private static final Logger LOG = LoggerFactory.getLogger(CountryWriter.class);
 
-  public static void writeHistoryCountries(ImmutableSet<Country> countries, String filePath) {
+  public static void writeHistoryCountries(
+      ImmutableSet<CountryHistory> countries, String filePath) {
     LOG.debug("Writing history countries to {}", filePath);
     try {
       new File(filePath).getParentFile().mkdirs();
@@ -39,9 +40,9 @@ public class CountryWriter {
     }
   }
 
-  static List<String> serializeHistoryCountries(ImmutableSet<Country> countries) {
+  static List<String> serializeHistoryCountries(ImmutableSet<CountryHistory> countries) {
     var result = new ArrayList<String>();
-    for (Country country : countries) {
+    for (CountryHistory country : countries) {
       result.add(format("  c:%s = {", country.id()));
       for (var law : country.activatedLaws()) {
         result.add(format("    activate_law = law_type:%s", law.id()));
@@ -109,7 +110,8 @@ public class CountryWriter {
     return result;
   }
 
-  public static void writeCountryDefinitions(ImmutableSet<Country> countries, String filePath) {
+  public static void writeCountryDefinitions(
+      ImmutableSet<CountryDefinition> countries, String filePath) {
     LOG.debug("Writing country definitions to {}", filePath);
     try {
       new File(filePath).getParentFile().mkdirs();
@@ -126,9 +128,9 @@ public class CountryWriter {
     }
   }
 
-  static List<String> serializeCountryDefinitions(ImmutableSet<Country> countries) {
+  static List<String> serializeCountryDefinitions(ImmutableSet<CountryDefinition> countries) {
     var result = new ArrayList<String>();
-    for (Country country : countries) {
+    for (CountryDefinition country : countries) {
       result.add(format("%s = {", country.id()));
       result.add(
           format(
