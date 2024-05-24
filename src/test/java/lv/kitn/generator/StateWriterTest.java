@@ -54,46 +54,14 @@ final class StateWriterTest {
     var regionState1 =
         new RegionState(
             state,
-            new CountryHistory(
-                "JOH",
-                null,
-                null,
-                null,
-                null,
-                null,
-                Optional.empty(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null),
+            "JOH",
             ImmutableSet.of("x76546D", "x0080B0"),
             ImmutableMap.of(),
             ImmutableSet.of());
     var regionState2 =
         new RegionState(
             state,
-            new CountryHistory(
-                "SIA",
-                null,
-                null,
-                null,
-                null,
-                null,
-                Optional.empty(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null),
+            "SIA",
             ImmutableSet.of("xF9F87A", "x80C0B0", "xCAB9F2"),
             ImmutableMap.of(),
             ImmutableSet.of());
@@ -138,23 +106,7 @@ final class StateWriterTest {
     var regionState1 =
         new RegionState(
             state,
-            new CountryHistory(
-                "JOH",
-                null,
-                null,
-                null,
-                null,
-                null,
-                Optional.empty(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null),
+            "JOH",
             ImmutableSet.of(),
             ImmutableMap.of(
                 new Population(MALAY, Optional.empty(), Optional.empty()), 399_600,
@@ -163,23 +115,7 @@ final class StateWriterTest {
     var regionState2 =
         new RegionState(
             state,
-            new CountryHistory(
-                "SEL",
-                null,
-                null,
-                null,
-                null,
-                null,
-                Optional.empty(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null),
+            "SEL",
             ImmutableSet.of(),
             ImmutableMap.of(
                 new Population(MALAY, Optional.empty(), Optional.empty()), 209_000,
@@ -240,23 +176,7 @@ final class StateWriterTest {
     var regionState1 =
         new RegionState(
             state,
-            new CountryHistory(
-                "JOH",
-                null,
-                null,
-                null,
-                null,
-                null,
-                Optional.empty(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null),
+            "JOH",
             ImmutableSet.of(),
             ImmutableMap.of(),
             ImmutableSet.of(
@@ -271,23 +191,7 @@ final class StateWriterTest {
     var regionState2 =
         new RegionState(
             state,
-            new CountryHistory(
-                "SEL",
-                null,
-                null,
-                null,
-                null,
-                null,
-                Optional.empty(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null),
+            "SEL",
             ImmutableSet.of(),
             ImmutableMap.of(),
             ImmutableSet.of(

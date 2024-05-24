@@ -48,7 +48,7 @@ public class StateWriter {
       result.add(format("  s:%s = {", entry.getKey().variableName()));
       for (RegionState regionState : entry.getValue()) {
         result.add("    create_state = {");
-        result.add(format("      country = c:%s", regionState.countryHistory().id()));
+        result.add(format("      country = c:%s", regionState.countryId()));
         result.add(serializeListOfStrings("owned_provinces", regionState.ownedProvinces(), 6));
         result.add("    }");
       }
@@ -88,7 +88,7 @@ public class StateWriter {
     for (Map.Entry<State, List<RegionState>> entry : stateToRegions.entrySet()) {
       result.add(format("  s:%s = {", entry.getKey().variableName()));
       for (RegionState regionState : entry.getValue()) {
-        result.add(format("    region_state:%s = {", regionState.countryHistory().id()));
+        result.add(format("    region_state:%s = {", regionState.countryId()));
         for (Map.Entry<Population, Integer> population : regionState.populations().entrySet()) {
           result.add("      create_pop = {");
           population
@@ -141,7 +141,7 @@ public class StateWriter {
     for (Map.Entry<State, List<RegionState>> entry : stateToRegions.entrySet()) {
       result.add(format("  s:%s = {", entry.getKey().variableName()));
       for (RegionState regionState : entry.getValue()) {
-        result.add(format("    region_state:%s = {", regionState.countryHistory().id()));
+        result.add(format("    region_state:%s = {", regionState.countryId()));
         for (StateBuilding stateBuilding : regionState.buildings()) {
           result.add("      create_building = {");
           result.add(format("        building = \"%s\"", stateBuilding.building().id()));
