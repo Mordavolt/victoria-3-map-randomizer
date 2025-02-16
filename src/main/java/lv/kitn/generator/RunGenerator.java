@@ -216,6 +216,10 @@ class RunGenerator {
     var result = ImmutableSet.<CountryHistory>builder();
     int i = 0;
     for (var provinces : groupedProvinces) {
+      if (i == 105) {
+        // finds itself unable to protect its North American colony of
+        i++;
+      }
       result.add(
           new CountryHistory(
               "COUNTRY_" + i++,
@@ -282,7 +286,7 @@ class RunGenerator {
     LOG.debug("Generating states");
     var groupedProvinces = getGroups(fullAdjacency, 100, random, 0.5);
     var result = ImmutableSet.<State>builder();
-    int i = 0;
+    int i = 3000;
     for (var provinces : groupedProvinces) {
       var terrainToProvincePrefabs =
           provinces.stream()
@@ -902,6 +906,8 @@ class RunGenerator {
             modPath,
             "/.metadata/metadata.json",
             List.of(
+                "/common/buildings/08_monuments.txt",
+                "/common/journal_entries/01_alaska.txt",
                 "/map_data/state_regions/00_west_europe.txt",
                 "/map_data/state_regions/01_south_europe.txt",
                 "/map_data/state_regions/02_east_europe.txt",
@@ -917,9 +923,43 @@ class RunGenerator {
                 "/map_data/state_regions/12_indonesia.txt",
                 "/map_data/state_regions/13_australasia.txt",
                 "/map_data/state_regions/14_siberia.txt",
-                "/common/journal_entries/01_alaska.txt",
-                "/common/buildings/08_monuments.txt",
-                "common/scripted_triggers/00_scripted_triggers.txt"),
+                "/common/character_templates/country_peu.txt",
+                "/common/history/buildings/00_west_europe.txt",
+                "/common/history/buildings/01_south_europe.txt",
+                "/common/history/buildings/02_east_europe.txt",
+                "/common/history/buildings/03_north_africa.txt",
+                "/common/history/buildings/04_subsaharan_africa.txt",
+                "/common/history/buildings/05_north_america.txt",
+                "/common/history/buildings/06_central_america.txt",
+                "/common/history/buildings/07_south_america.txt",
+                "/common/history/buildings/08_middle_east.txt",
+                "/common/history/buildings/09_central_asia.txt",
+                "/common/history/buildings/10_india.txt",
+                "/common/history/buildings/11_east_asia.txt",
+                "/common/history/buildings/12_indonesia.txt",
+                "/common/history/buildings/13_australasia.txt",
+                "/common/history/buildings/14_siberia.txt",
+                "/common/history/diplomacy/00_truces.txt",
+                "/common/history/diplomatic_plays/00_south_american_wars.txt",
+                "/common/history/diplomatic_plays/00_texan_war_of_independence.txt",
+                "/common/history/global/00_global.txt",
+                "/common/history/government_setup/00_government_setup.txt",
+                "/common/history/pops/00_west_europe.txt",
+                "/common/history/pops/01_south_europe.txt",
+                "/common/history/pops/02_east_europe.txt",
+                "/common/history/pops/03_north_africa.txt",
+                "/common/history/pops/04_subsaharan_africa.txt",
+                "/common/history/pops/05_north_america.txt",
+                "/common/history/pops/06_central_america.txt",
+                "/common/history/pops/07_south_america.txt",
+                "/common/history/pops/08_middle_east.txt",
+                "/common/history/pops/09_central_asia.txt",
+                "/common/history/pops/10_india.txt",
+                "/common/history/pops/11_east_asia.txt",
+                "/common/history/pops/12_indonesia.txt",
+                "/common/history/pops/13_australasia.txt",
+                "/common/history/pops/14_siberia.txt",
+                "/common/history/production_methods/00_urban_center.txt"),
             "/common/history/states/00_states.txt",
             "/common/history/pops/00_pops.txt",
             "/common/history/buildings/00_buildings.txt",
